@@ -1,62 +1,62 @@
 # fks-utils
 
-Dependência partilhada dos scripts FKS (VORP / RSG). Junta utilidades que vamos acrescentando com o tempo.
+Shared dependency for the FKS scripts (VORP / RSG). It bundles utilities that we keep adding over time.
 
 ```lua
--- fxmanifest.lua do script
+-- the script's fxmanifest.lua
 dependencies { 'fks-utils' }
 ```
 
-## Notificações
+## Notifications
 
-Painel `html/pannel.png` com o logótipo do servidor à esquerda. Para trocar o logo basta substituir
-`html/logo.png` (também aceita `logo.webp`, `logo.jpg`, `logo.jpeg` ou `logo.svg`). Se não houver logo, o painel aparece só com o texto.
+Panel `html/pannel.png` with the server logo on the left. To change the logo just replace
+`html/logo.png` (`logo.webp`, `logo.jpg`, `logo.jpeg` or `logo.svg` also work). Without a logo the panel shows only the text.
 
 ```lua
 -- client
-exports['fks-utils']:Notify('Mensagem', 'success', 5000, 'Título')
-exports['fks-utils']:Notify({ title = 'Título', description = 'Mensagem', type = 'error', duration = 5000 })
+exports['fks-utils']:Notify('Message', 'success', 5000, 'Title')
+exports['fks-utils']:Notify({ title = 'Title', description = 'Message', type = 'error', duration = 5000 })
 
--- server (source = -1 envia para todos)
-exports['fks-utils']:Notify(source, 'Mensagem', 'success')
-TriggerClientEvent('fks-utils:client:notify', source, { title = 'Título', description = 'Mensagem', type = 'warning' })
+-- server (source = -1 sends to everyone)
+exports['fks-utils']:Notify(source, 'Message', 'success')
+TriggerClientEvent('fks-utils:client:notify', source, { title = 'Title', description = 'Message', type = 'warning' })
 ```
 
-`type`: `inform` · `success` · `error` · `warning` (também aceita os nomes do ox_lib / RSG: `info`, `primary`, `warn`).
-Posição, duração, máximo no ecrã e som em `Config.Notify`.
+`type`: `inform` · `success` · `error` · `warning` (the ox_lib / RSG names also work: `info`, `primary`, `warn`).
+Position, duration, max on screen and sound in `Config.Notify`.
 
 ## Progress bar
 
-Bloqueia até acabar; devolve `true` se chegou ao fim e `false` se foi cancelada (tecla X, morte ou `CancelProgress`).
-Aceita a mesma tabela do `lib.progressBar` do ox_lib.
+Blocks until it ends; returns `true` if it finished and `false` if it was cancelled (X key, death or `CancelProgress`).
+Accepts the same table as ox_lib's `lib.progressBar`.
 
 ```lua
 local done = exports['fks-utils']:Progress({
     duration = 5000,
-    label = 'A ligar a ferida...',
+    label = 'Bandaging the wound...',
     canCancel = true,
     useWhileDead = false,
     disable = { move = true, sprint = true, combat = true, mount = true, mouse = false },
-    anim = { dict = 'mech_inventory@crafting@fallbacks', clip = 'full_craft_and_stow', flag = 17 }, -- ou { scenario = 'WORLD_HUMAN_CROUCH_INSPECT' }
+    anim = { dict = 'mech_inventory@crafting@fallbacks', clip = 'full_craft_and_stow', flag = 17 }, -- or { scenario = 'WORLD_HUMAN_CROUCH_INSPECT' }
     prop = { model = 'p_bottlebeer01x', bone = 'SKEL_R_HAND', pos = vec3(0.0, 0.0, 0.0), rot = vec3(0.0, 0.0, 0.0) },
 })
 
-exports['fks-utils']:ProgressActive()  -- true enquanto há uma barra a correr
-exports['fks-utils']:CancelProgress()  -- cancela a barra atual
+exports['fks-utils']:ProgressActive()  -- true while a bar is running
+exports['fks-utils']:CancelProgress()  -- cancels the current bar
 ```
 
 ## /items (admin)
 
-Painel com todos os items, armas e munição do inventário (vorp_inventory, rsg-inventory ou ox_inventory), com imagem,
-pesquisa e filtro por categoria. Clicar num item → entregar a si próprio ou a outro jogador, com a quantidade.
+Panel with every item, weapon and ammo from the inventory (vorp_inventory, rsg-inventory or ox_inventory), with images,
+search and category filter. Click an item → give it to yourself or to another player, with the amount.
 
-Quem pode usar (`Config.Items`):
-- VORP: grupos em `vorpGroups` (por defeito `admin`, `superadmin`)
-- RSG: permissão `rsgPermission` (por defeito `admin`, e `god`)
-- quem tiver a ACE `fks-utils.items` ou a ACE `command` (o `group.admin` do server.cfg já a tem)
+Who can use it (`Config.Items`):
+- VORP: groups in `vorpGroups` (default `admin`, `superadmin`)
+- RSG: the `rsgPermission` permission (default `admin`, and `god`)
+- anyone with the `fks-utils.items` ACE or the `command` ACE (`group.admin` in server.cfg already has it)
 
-O servidor volta a validar a permissão, o item, a quantidade e o jogador em cada entrega, e escreve no console quem deu o quê a quem (`logGives`).
+The server validates the permission, item, amount and player again on every give, and prints to the console who gave what to whom (`logGives`).
 
-## Licença
+## License
 
-GNU GPL v3 ou posterior (ver `LICENSE`).
+GNU GPL v3 or later (see `LICENSE`).
