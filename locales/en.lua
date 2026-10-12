@@ -1,0 +1,42 @@
+-- English
+Locales = Locales or {}
+
+Locales['en'] = {
+    game = {
+        cancelled = 'Cancelled.',
+        busy = 'You are already doing something else.',
+        no_permission = 'You are not allowed to do this.',
+        items_help = 'Item panel (admin)',
+        player_offline = 'That player is no longer in town.',
+        invalid_item = 'That item does not exist.',
+        invalid_amount = 'Invalid amount.',
+        cant_carry = '%s cannot carry that.',
+        give_failed = 'Could not hand over %s.',
+        gave = 'You gave %sx %s to %s.',
+        gave_self = 'You received %sx %s.',
+        received = 'You received %sx %s from an admin.',
+    },
+    ui = {
+        eyebrow = 'Administration',
+        title = 'Storehouse',
+        search = 'Search by name...',
+        cat_all = 'All',
+        cat_item = 'Items',
+        cat_weapon = 'Weapons',
+        cat_ammo = 'Ammo',
+        results = '%s results',
+        empty = 'Nothing on this shelf.',
+        give_to = 'Give to',
+        myself = 'Myself',
+        player = 'Another player',
+        pick_player = 'Pick the player',
+        search_player = 'Name or ID...',
+        amount = 'Amount',
+        give = 'Give',
+        cancel = 'Cancel',
+        close = 'Close',
+        no_players = 'There is nobody else in town.',
+        cancel_hint = 'Cancel',
+        cancelled_label = 'Cancelled',
+    },
+}

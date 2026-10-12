@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>FKS Utils</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- notifications -->
+    <div id="notify" class="top-right"></div>
+
+    <!-- progress bar -->
+    <div id="progress" class="hidden">
+        <div class="pg-label" id="pg-label"></div>
+        <div class="pg-frame">
+            <svg class="pg-gem left" viewBox="0 0 10 10"><path d="M5 0 L10 5 L5 10 L0 5 Z" /></svg>
+            <div class="pg-track">
+                <div class="pg-fill" id="pg-fill"></div>
+                <svg class="pg-spur" id="pg-spur" viewBox="0 0 24 24"><use href="#i-spur" /></svg>
+            </div>
+            <svg class="pg-gem right" viewBox="0 0 10 10"><path d="M5 0 L10 5 L5 10 L0 5 Z" /></svg>
+            <span class="pg-pct" id="pg-pct">0%</span>
+        </div>
+        <div class="pg-hint hidden" id="pg-hint"><kbd id="pg-key">X</kbd><span id="pg-hint-text"></span></div>
+    </div>
+
+    <!-- admin item panel -->
+    <div id="items" class="hidden">
+        <section class="it-panel">
+            <button class="it-close" data-act="close" aria-label="Fechar"><svg><use href="#i-x" /></svg></button>
+
+            <header class="it-head">
+                <div class="eyebrow">FKS · <span data-l="eyebrow"></span></div>
+                <h1 data-l="title"></h1>
+                <svg class="rule" viewBox="0 0 300 12" preserveAspectRatio="none" aria-hidden="true">
+                    <path d="M2 6 Q75 3 146 6" /><path d="M154 6 Q225 9 298 6" />
+                    <path class="gem" d="M150 1 L155 6 L150 11 L145 6 Z" />
+                </svg>
+            </header>
+
+            <div class="it-bar">
+                <label class="it-search">
+                    <svg><use href="#i-search" /></svg>
+                    <input id="it-search" type="text" autocomplete="off" spellcheck="false">
+                </label>
+                <nav class="it-tabs" id="it-tabs"></nav>
+                <span class="it-count" id="it-count"></span>
+            </div>
+
+            <main class="it-grid" id="it-grid"></main>
+
+            <!-- give dialog -->
+            <div id="it-modal" class="hidden">
+                <div class="it-card">
+                    <div class="it-card-top">
+                        <div class="it-card-img"><img id="m-img" alt=""></div>
+                        <div class="it-card-info">
+                            <span class="it-kind" id="m-kind"></span>
+                            <h3 id="m-label"></h3>
+                            <code id="m-name"></code>
+                            <p id="m-desc"></p>
+                        </div>
+                    </div>
+
+                    <div class="it-field">
+                        <span class="it-field-label" data-l="give_to"></span>
+                        <div class="it-switch">
+                            <button data-act="target-self" class="on" data-l="myself"></button>
+                            <button data-act="target-player" data-l="player"></button>
+                        </div>
+                    </div>
+
+                    <div class="it-players hidden" id="m-players">
+                        <input id="m-player-search" type="text" autocomplete="off" spellcheck="false">
+                        <div class="it-player-list" id="m-player-list"></div>
+                    </div>
+
+                    <div class="it-field">
+                        <span class="it-field-label" data-l="amount"></span>
+                        <div class="it-amount">
+                            <button data-act="minus">−</button>
+                            <input id="m-amount" type="number" min="1" value="1">
+                            <button data-act="plus">+</button>
+                        </div>
+                        <div class="it-quick" id="m-quick"></div>
+                    </div>
+
+                    <div class="it-actions">
+                        <button class="btn ghost" data-act="cancel" data-l="cancel"></button>
+                        <button class="btn" data-act="give" id="m-give" data-l="give"></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- filters and icons -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <defs>
+            <filter id="ink-soft" x="-10%" y="-10%" width="120%" height="120%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" seed="3" result="n" />
+                <feDisplacementMap in="SourceGraphic" in2="n" scale="1.4" />
+            </filter>
+            <linearGradient id="g-brass" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#ffe29a" /><stop offset=".5" stop-color="#e2ae3c" /><stop offset="1" stop-color="#9a6b12" />
+            </linearGradient>
+        </defs>
+
+        <!-- spur rowel -->
+        <symbol id="i-spur" viewBox="-12 -12 24 24">
+            <path fill="url(#g-brass)" stroke="#3a2a0c" stroke-width=".6"
+                d="M0-11 L1.6-3.8 L7.8-7.8 L3.8-1.6 L11 0 L3.8 1.6 L7.8 7.8 L1.6 3.8 L0 11 L-1.6 3.8 L-7.8 7.8 L-3.8 1.6 L-11 0 L-3.8-1.6 L-7.8-7.8 L-1.6-3.8 Z" />
+            <circle r="2.6" fill="#2a1d08" stroke="#e2ae3c" stroke-width=".9" />
+        </symbol>
+        <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" /><path d="M15.5 15.5 L21 21" /></symbol>
+        <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6 L18 18 M18 6 L6 18" /></symbol>
+    </svg>
+
+    <script src="app.js"></script>
+</body>
+</html>

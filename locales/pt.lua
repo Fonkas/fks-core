@@ -1,0 +1,42 @@
+-- Português (Portugal)
+Locales = Locales or {}
+
+Locales['pt'] = {
+    game = {
+        cancelled = 'Cancelado.',
+        busy = 'Já estás a fazer outra coisa.',
+        no_permission = 'Não tens permissão para isto.',
+        items_help = 'Painel de items (admin)',
+        player_offline = 'Esse jogador já não está na cidade.',
+        invalid_item = 'Esse item não existe.',
+        invalid_amount = 'Quantidade inválida.',
+        cant_carry = '%s não consegue carregar isso.',
+        give_failed = 'Não foi possível entregar %s.',
+        gave = 'Deste %sx %s a %s.',
+        gave_self = 'Recebeste %sx %s.',
+        received = 'Recebeste %sx %s de um administrador.',
+    },
+    ui = {
+        eyebrow = 'Administração',
+        title = 'Armazém',
+        search = 'Procurar pelo nome...',
+        cat_all = 'Tudo',
+        cat_item = 'Items',
+        cat_weapon = 'Armas',
+        cat_ammo = 'Munição',
+        results = '%s resultados',
+        empty = 'Nada encontrado nesta prateleira.',
+        give_to = 'Entregar a',
+        myself = 'Eu próprio',
+        player = 'Outro jogador',
+        pick_player = 'Escolhe o jogador',
+        search_player = 'Nome ou ID...',
+        amount = 'Quantidade',
+        give = 'Entregar',
+        cancel = 'Cancelar',
+        close = 'Fechar',
+        no_players = 'Não há mais ninguém na cidade.',
+        cancel_hint = 'Cancelar',
+        cancelled_label = 'Cancelado',
+    },
+}
