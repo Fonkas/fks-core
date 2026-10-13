@@ -5,15 +5,15 @@ lua54 'yes'
 
 name 'fks-utils'
 author 'FKS'
-description 'Shared utilities for the FKS scripts: notifications, progress bar, admin item panel (VORP / RSG)'
-version '1.0.0'
+description 'Shared base of the FKS scripts: VORP / RSG bridge, notifications, progress bar, admin item panel'
+version '1.1.0'
 license 'GPL-3.0-or-later'
 
 shared_scripts {
     'config.lua',
     'locales/*.lua',
     'shared/locale.lua',
-    'shared/bridge.lua',
+    'bridge/shared.lua',
 }
 
 client_scripts {
@@ -25,14 +25,18 @@ client_scripts {
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
-    'server/bridge.lua',
+    'bridge/server.lua',
+    'server/items_bridge.lua',
     'server/notify.lua',
     'server/items.lua',
+    'server/version.lua',
 }
 
 ui_page 'html/index.html'
 
 files {
+    'import.lua',       -- the bridge other scripts import: shared_script '@fks-utils/import.lua'
+    'bridge/*.lua',
     'html/index.html',
     'html/style.css',
     'html/app.js',

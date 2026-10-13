@@ -17,7 +17,7 @@ end
 
 RegisterCommand(Config.Items.command, function(src)
     if src == 0 then return print('[fks-utils] /' .. Config.Items.command .. ' can only be used in game.') end
-    if not Bridge.IsAdmin(src) then return Notify(src, _L('no_permission'), 'error') end
+    if not Bridge.IsItemsAdmin(src) then return Notify(src, _L('no_permission'), 'error') end
 
     local list = Catalogue()
     TriggerLatentClientEvent('fks-utils:client:openItems', src, 200000, {
@@ -34,7 +34,7 @@ AddEventHandler('playerDropped', function() sentTo[source] = nil end)
 
 RegisterNetEvent('fks-utils:server:give', function(name, kind, target, amount)
     local src = source
-    if not Bridge.IsAdmin(src) then return end
+    if not Bridge.IsItemsAdmin(src) then return end
 
     local entry = type(name) == 'string' and type(kind) == 'string' and byKey[Key(kind, name)]
     if not entry then return Notify(src, _L('invalid_item'), 'error') end

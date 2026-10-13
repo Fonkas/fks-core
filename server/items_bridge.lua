@@ -1,77 +1,15 @@
 ---------------------------------------------------------------------------
--- Framework bridge (server): admin check, players, item catalogue, giving
+-- /items panel (server): admin check, item catalogue and giving.
+-- Framework / inventory / players come from the shared bridge (bridge/server.lua).
 ---------------------------------------------------------------------------
-Bridge = {}
+local RSG = Bridge.RSG
 
-local cores = {}
-local function RSG()
-    if not cores.rsg then cores.rsg = exports['rsg-core']:GetCoreObject() end
-    return cores.rsg
-end
-local function VORP()
-    if not cores.vorp then cores.vorp = exports.vorp_core:GetCore() end
-    return cores.vorp
-end
-
-local function VorpUser(src)
-    local user = VORP().getUser(src)
-    return user, user and user.getUsedCharacter
-end
-
----------------------------------------------------------------------------
--- Permissions
----------------------------------------------------------------------------
-function Bridge.IsAdmin(src)
+-- VORP groups / RSG permission from Config.Items, plus the Config.Items.ace ACE
+function Bridge.IsItemsAdmin(src)
     if src == 0 then return false end -- the panel needs a player
     local cfg = Config.Items
-    if cfg.ace and IsPlayerAceAllowed(src, cfg.ace) then return true end
-
-    local fw = GetFramework()
-    if fw == 'vorp' then
-        local user, char = VorpUser(src)
-        local groups = {}
-        for _, g in ipairs(cfg.vorpGroups or { 'admin' }) do groups[g] = true end
-        if user and groups[user.getGroup] then return true end
-        if char and groups[char.group] then return true end
-    elseif fw == 'rsg' then
-        local perm = cfg.rsgPermission or 'admin'
-        if RSG().Functions.HasPermission(src, perm) or RSG().Functions.HasPermission(src, 'god') then return true end
-    end
-    return IsPlayerAceAllowed(src, 'command') -- server owners with full ACE access
-end
-
----------------------------------------------------------------------------
--- Players
----------------------------------------------------------------------------
-function Bridge.CharacterName(src)
-    local fw = GetFramework()
-    if fw == 'vorp' then
-        local _, char = VorpUser(src)
-        if char and char.firstname then return ('%s %s'):format(char.firstname, char.lastname or '') end
-    elseif fw == 'rsg' then
-        local Player = RSG().Functions.GetPlayer(src)
-        local info = Player and Player.PlayerData.charinfo
-        if info then return ('%s %s'):format(info.firstname or '', info.lastname or '') end
-    end
-end
-
-function Bridge.HasCharacter(src)
-    local fw = GetFramework()
-    if fw == 'vorp' then return select(2, VorpUser(src)) ~= nil end
-    if fw == 'rsg' then return RSG().Functions.GetPlayer(src) ~= nil end
-    return false
-end
-
-function Bridge.Players()
-    local list = {}
-    for _, id in ipairs(GetPlayers()) do
-        local src = tonumber(id)
-        if Bridge.HasCharacter(src) then
-            list[#list + 1] = { id = src, name = Bridge.CharacterName(src) or GetPlayerName(src), steam = GetPlayerName(src) }
-        end
-    end
-    table.sort(list, function(a, b) return a.id < b.id end)
-    return list
+    local groups = Bridge.Framework() == 'rsg' and { cfg.rsgPermission or 'admin' } or (cfg.vorpGroups or { 'admin' })
+    return Bridge.IsAdmin(src, groups, cfg.ace)
 end
 
 ---------------------------------------------------------------------------
@@ -151,7 +89,7 @@ local function OxCatalogue()
 end
 
 function Bridge.Catalogue()
-    local inv = GetInventory()
+    local inv = ({ ox_inventory = 'ox', vorp_inventory = 'vorp', ['rsg-inventory'] = 'rsg' })[Bridge.Inventory() or '']
     local ok, list
     if inv == 'ox' then ok, list = pcall(OxCatalogue)
     elseif inv == 'vorp' then ok, list = pcall(VorpCatalogue)
@@ -194,7 +132,7 @@ end
 function Give.rsg(target, entry, amount)
     local Player = RSG().Functions.GetPlayer(target)
     if not Player then return false end
-    if Started('rsg-inventory') then
+    if Bridge.Started('rsg-inventory') then
         local ok, can = pcall(function() return exports['rsg-inventory']:CanAddItem(target, entry.name, amount) end)
         if ok and can == false then return false, 'cant_carry' end
     end
@@ -216,7 +154,7 @@ function Give.ox(target, entry, amount)
 end
 
 function Bridge.Give(target, entry, amount)
-    local fn = Give[GetInventory()]
+    local fn = Give[({ ox_inventory = 'ox', vorp_inventory = 'vorp', ['rsg-inventory'] = 'rsg' })[Bridge.Inventory() or '']]
     if not fn then return false end
     local ok, res, err = pcall(fn, target, entry, amount)
     if not ok then

@@ -1,8 +1,16 @@
 Config = {}
 
+-- Server console: "up to date" / "OUTDATED" compared with the version on GitHub
+Config.VersionCheck = {
+    enabled  = true,
+    repo     = 'Fonkas/fks-utils',   -- GitHub "user/repository"
+    branch   = 'main',
+    interval = 12,                   -- check again every X hours (0 = only on start)
+}
+
 -- 'auto' (detects rsg-core / vorp_core) | 'vorp' | 'rsg'
 Config.Framework = 'auto'
--- 'auto' (ox_inventory > the framework's inventory) | 'vorp' | 'rsg' | 'ox'
+-- 'auto' (ox_inventory > rsg-inventory > vorp_inventory) | 'vorp' | 'rsg' | 'ox'
 Config.Inventory = 'auto'
 
 -- Language: 'pt' | 'en' (files in locales/; missing keys fall back to English)
