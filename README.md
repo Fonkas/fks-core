@@ -1,7 +1,10 @@
-# fks-utils
+# fks-core
 
 Shared base of the FKS scripts (RedM · VORP / RSG): one framework bridge for every script, notifications,
 progress bar and an admin item panel.
+
+> **fks-utils is now fks-core.** From 2.0.0 the resource is called `fks-core` and it is the single dependency of every FKS script.
+> See [Coming from fks-utils](#coming-from-fks-utils).
 
 ## Installation
 
@@ -10,25 +13,25 @@ ensure ox_lib
 ensure oxmysql
 ensure vorp_core        # or rsg-core
 ensure vorp_inventory   # or rsg-inventory / ox_inventory
-ensure fks-utils        # before the FKS scripts
+ensure fks-core        # before the FKS scripts
 ensure fks-stables
 ```
 
-The server console shows whether fks-utils is **up to date** or **OUTDATED** compared with GitHub (`Config.VersionCheck`).
+The server console shows whether fks-core is **up to date** or **OUTDATED** compared with GitHub (`Config.VersionCheck`).
 
 ## Bridge (for script developers)
 
 One line in the script's `fxmanifest.lua` gives it the `Bridge` table on the server and the client, for VORP and RSG with
 `vorp_inventory`, `rsg-inventory` or `ox_inventory`. The code runs inside the script, so callbacks and returned tables work
-like local code — and a fix in fks-utils reaches every script.
+like local code — and a fix in fks-core reaches every script.
 
 ```lua
 shared_scripts {
     '@ox_lib/init.lua',
-    '@fks-utils/import.lua',
+    '@fks-core/import.lua',
     'config.lua',
 }
-fks_utils_version '1.1.0' -- optional: warns in the console when the installed fks-utils is older
+fks_core_version '2.0.0' -- optional: warns in the console when the installed fks-core is older
 ```
 
 Optional settings, read from the script's own `Config` (all have defaults):
@@ -54,7 +57,7 @@ Bridge.OnCharacterLoaded(function(src) end)
 
 Bridge.IsAdmin(src, groups?, ace?)              -- console and full ACE ('command') always allowed
 Bridge.RegisterAdminCommand(name, help, args, function(src, args) end, groups?)
-Bridge.Notify(src, 'Message', 'success')        -- fks-utils notification (src = -1: everyone)
+Bridge.Notify(src, 'Message', 'success')        -- fks-core notification (src = -1: everyone)
 
 Bridge.RegisterUsable(item, function(src, item) end)
 Bridge.ItemCount(src, item)  Bridge.HasItem(src, item, n)  Bridge.CanCarry(src, item, n)
@@ -73,11 +76,11 @@ Bridge.OnLoaded(function() end)                 -- also runs on resource restart
 Bridge.OnUnloaded(function() end)
 Bridge.GetJob()                                 -- { name, label, grade }
 Bridge.OnJobUpdate(function() end)
-Bridge.Notify('Message', 'success')             -- fks-utils notification
+Bridge.Notify('Message', 'success')             -- fks-core notification
 Bridge.Progress({ duration = 5000, label = '...' })
 ```
 
-> When fks-utils is missing, `@fks-utils/import.lua` prints the download link in the console. List it in the script's
+> When fks-core is missing, `@fks-core/import.lua` prints the download link in the console. List it in the script's
 > `dependencies` only if you prefer the server to refuse to start the script instead.
 
 ## Notifications
@@ -87,12 +90,12 @@ Panel `html/pannel.png` with the server logo on the left. To change the logo jus
 
 ```lua
 -- client
-exports['fks-utils']:Notify('Message', 'success', 5000, 'Title')
-exports['fks-utils']:Notify({ title = 'Title', description = 'Message', type = 'error', duration = 5000 })
+exports['fks-core']:Notify('Message', 'success', 5000, 'Title')
+exports['fks-core']:Notify({ title = 'Title', description = 'Message', type = 'error', duration = 5000 })
 
 -- server (source = -1 sends to everyone)
-exports['fks-utils']:Notify(source, 'Message', 'success')
-TriggerClientEvent('fks-utils:client:notify', source, { title = 'Title', description = 'Message', type = 'warning' })
+exports['fks-core']:Notify(source, 'Message', 'success')
+TriggerClientEvent('fks-core:client:notify', source, { title = 'Title', description = 'Message', type = 'warning' })
 ```
 
 `type`: `inform` · `success` · `error` · `warning` (the ox_lib / RSG names also work: `info`, `primary`, `warn`).
@@ -104,7 +107,7 @@ Blocks until it ends; returns `true` if it finished and `false` if it was cancel
 Accepts the same table as ox_lib's `lib.progressBar`.
 
 ```lua
-local done = exports['fks-utils']:Progress({
+local done = exports['fks-core']:Progress({
     duration = 5000,
     label = 'Bandaging the wound...',
     canCancel = true,
@@ -114,8 +117,8 @@ local done = exports['fks-utils']:Progress({
     prop = { model = 'p_bottlebeer01x', bone = 'SKEL_R_HAND', pos = vec3(0.0, 0.0, 0.0), rot = vec3(0.0, 0.0, 0.0) },
 })
 
-exports['fks-utils']:ProgressActive()  -- true while a bar is running
-exports['fks-utils']:CancelProgress()  -- cancels the current bar
+exports['fks-core']:ProgressActive()  -- true while a bar is running
+exports['fks-core']:CancelProgress()  -- cancels the current bar
 ```
 
 ## /items (admin)
@@ -126,9 +129,18 @@ search and category filter. Click an item → give it to yourself or to another 
 Who can use it (`Config.Items`):
 - VORP: groups in `vorpGroups` (default `admin`, `superadmin`)
 - RSG: the `rsgPermission` permission (default `admin`, and `god`)
-- anyone with the `fks-utils.items` ACE or the `command` ACE (`group.admin` in server.cfg already has it)
+- anyone with the `fks-core.items` ACE or the `command` ACE (`group.admin` in server.cfg already has it)
 
 The server validates the permission, item, amount and player again on every give, and prints to the console who gave what to whom (`logGives`).
+
+## Coming from fks-utils
+
+1. Delete the old `fks-utils` folder and put `fks-core` in its place.
+2. In `server.cfg` replace `ensure fks-utils` with `ensure fks-core` (still before the FKS scripts).
+3. Update the FKS scripts to their latest release (they import `@fks-core/import.lua`).
+4. If you gave the `fks-utils.items` ACE, rename it to `fks-core.items`.
+
+fks-utils is discontinued: FKS scripts released before fks-core 2.0.0 do not work with it, update them too.
 
 ## License
 

@@ -3,10 +3,10 @@ game 'rdr3'
 rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aware my resources *will* become incompatible once RedM ships.'
 lua54 'yes'
 
-name 'fks-utils'
+name 'fks-core'
 author 'FKS'
 description 'Shared base of the FKS scripts: VORP / RSG bridge, notifications, progress bar, admin item panel'
-version '1.1.0'
+version '2.0.0'
 license 'GPL-3.0-or-later'
 
 shared_scripts {
@@ -35,7 +35,7 @@ server_scripts {
 ui_page 'html/index.html'
 
 files {
-    'import.lua',       -- the bridge other scripts import: shared_script '@fks-utils/import.lua'
+    'import.lua',       -- the bridge other scripts import: shared_script '@fks-core/import.lua'
     'bridge/*.lua',
     'html/index.html',
     'html/style.css',

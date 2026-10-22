@@ -1,8 +1,8 @@
 ---------------------------------------------------------------------------
--- fks-utils bridge: one line in the fxmanifest.lua of a script and it gets the `Bridge`
+-- fks-core bridge: one line in the fxmanifest.lua of a script and it gets the `Bridge`
 -- table (VORP / RSG + vorp_inventory / rsg-inventory / ox_inventory) on the server and the client.
 --
---   shared_script '@fks-utils/import.lua'
+--   shared_script '@fks-core/import.lua'
 --
 -- The bridge code runs inside the script that imports it, so callbacks and returned tables work
 -- like local code. Optional settings read from the script's own Config (all have defaults):
@@ -10,28 +10,28 @@
 --   Config.Inventory       'auto' | 'ox_inventory' | 'rsg-inventory' | 'vorp_inventory'
 --   Config.RSGGoldAccount  rsg-core money account used as "gold" (nil = no gold on RSG)
 --   Config.AdminGroups     groups / permissions allowed by Bridge.IsAdmin (default admin, superadmin)
--- Minimum fks-utils version (optional, in the script's fxmanifest.lua):  fks_utils_version '1.1.0'
+-- Minimum fks-core version (optional, in the script's fxmanifest.lua):  fks_core_version '2.0.0'
 ---------------------------------------------------------------------------
-local UTILS = 'fks-utils'
+local CORE = 'fks-core'
 local resource = GetCurrentResourceName()
 local side = IsDuplicityVersion() and 'server' or 'client'
 
-if resource ~= UTILS then
-    local state = GetResourceState(UTILS)
+if resource ~= CORE then
+    local state = GetResourceState(CORE)
     if state ~= 'started' and state ~= 'starting' then
-        print(('^1[%s] fks-utils is not running (%s). Download: https://github.com/Fonkas/fks-utils^0'):format(resource, state))
-        print(('^1[%s] add ^3ensure fks-utils^1 before ^3ensure %s^1 in server.cfg^0'):format(resource, resource))
+        print(('^1[%s] fks-core is not running (%s). Download: https://github.com/Fonkas/fks-core^0'):format(resource, state))
+        print(('^1[%s] add ^3ensure fks-core^1 before ^3ensure %s^1 in server.cfg^0'):format(resource, resource))
         return
     end
 end
 
 for _, file in ipairs({ 'bridge/shared.lua', ('bridge/%s.lua'):format(side) }) do
-    local code = LoadResourceFile(UTILS, file)
+    local code = LoadResourceFile(CORE, file)
     if not code then
-        print(('^1[%s] could not read @fks-utils/%s - update fks-utils^0'):format(resource, file))
+        print(('^1[%s] could not read @fks-core/%s - update fks-core^0'):format(resource, file))
         return
     end
-    local fn, err = load(code, ('@@%s/%s'):format(UTILS, file), 't', _ENV)
-    if not fn then error(('[%s] @fks-utils/%s: %s'):format(resource, file, err), 0) end
+    local fn, err = load(code, ('@@%s/%s'):format(CORE, file), 't', _ENV)
+    if not fn then error(('[%s] @fks-core/%s: %s'):format(resource, file, err), 0) end
     fn()
 end

@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------
--- Update checker of fks-utils itself (Config.VersionCheck)
+-- Update checker of fks-core itself (Config.VersionCheck)
 ---------------------------------------------------------------------------
 local cfg = Config.VersionCheck or {}
 if cfg.enabled then

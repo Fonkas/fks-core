@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------
 -- Bridge (shared): framework / inventory detection.
--- Runs inside the script that imports it (@fks-utils/import.lua) and inside fks-utils itself.
--- The framework and the inventory may start AFTER the script (fks-utils is a dependency, so it starts
+-- Runs inside the script that imports it (@fks-core/import.lua) and inside fks-core itself.
+-- The framework and the inventory may start AFTER the script (fks-core is a dependency, so it starts
 -- before vorp_core / rsg-core): detection runs on use, not at load, and is cached once something is found.
 ---------------------------------------------------------------------------
 Bridge = Bridge or {}
@@ -68,11 +68,11 @@ function Bridge.IsNewer(a, b)
     return false
 end
 
--- fks_utils_version 'x.y.z' in the script's fxmanifest.lua: warns when the installed fks-utils is older
-if IsDuplicityVersion() and Bridge.resource ~= 'fks-utils' then
-    local need = GetResourceMetadata(Bridge.resource, 'fks_utils_version', 0)
-    local have = GetResourceMetadata('fks-utils', 'version', 0) or '0.0.0'
+-- fks_core_version 'x.y.z' in the script's fxmanifest.lua: warns when the installed fks-core is older
+if IsDuplicityVersion() and Bridge.resource ~= 'fks-core' then
+    local need = GetResourceMetadata(Bridge.resource, 'fks_core_version', 0)
+    local have = GetResourceMetadata('fks-core', 'version', 0) or '0.0.0'
     if need and Bridge.IsNewer(need, have) then
-        print(('^1[%s] needs fks-utils %s or newer (installed: %s). Download: https://github.com/Fonkas/fks-utils^0'):format(Bridge.resource, need, have))
+        print(('^1[%s] needs fks-core %s or newer (installed: %s). Download: https://github.com/Fonkas/fks-core^0'):format(Bridge.resource, need, have))
     end
 end

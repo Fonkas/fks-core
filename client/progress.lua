@@ -1,14 +1,14 @@
 ---------------------------------------------------------------------------
 -- Progress bar (blocks until it ends, returns true if it reached the end)
---   local done = exports['fks-utils']:Progress({
+--   local done = exports['fks-core']:Progress({
 --       duration = 5000, label = 'Bandaging...',
 --       canCancel = true, useWhileDead = false,
 --       disable = { move = true, mount = true, combat = true, sprint = true, mouse = false },
 --       anim = { dict = 'mech_inventory@crafting@fallbacks', clip = 'full_craft_and_stow', flag = 17 } -- or { scenario = 'WORLD_HUMAN_CROUCH_INSPECT' },
 --       prop = { model = 'p_bottlebeer01x', bone = 'SKEL_R_HAND', pos = vec3(0, 0, 0), rot = vec3(0, 0, 0) },
 --   })
---   exports['fks-utils']:ProgressActive()  -> true while a bar is running
---   exports['fks-utils']:CancelProgress()  -> cancels the running bar (it returns false)
+--   exports['fks-core']:ProgressActive()  -> true while a bar is running
+--   exports['fks-core']:CancelProgress()  -> cancels the running bar (it returns false)
 ---------------------------------------------------------------------------
 local active = nil
 

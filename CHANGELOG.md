@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.0.0
+
+- **Renamed from fks-utils to fks-core.** It is now the single dependency of every FKS script (bridge, notifications,
+  progress bar, and the shared UI that comes next). Nothing else changed in this release.
+- Scripts import `@fks-core/import.lua` and can require a minimum version with `fks_core_version 'x.y.z'`.
+- **Breaking:** the fks-utils name is gone. Remove `fks-utils`, install `fks-core` and update every FKS script to its
+  release for fks-core 2.0.0 (see "Coming from fks-utils" in the README).
+- `/items` ACE renamed to `fks-core.items`. Events renamed to `fks-core:*`.
+
 ## 1.1.0
 
 - **Bridge for the FKS scripts:** `shared_script '@fks-utils/import.lua'` gives a script the `Bridge` table for VORP / RSG

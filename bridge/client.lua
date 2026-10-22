@@ -68,22 +68,22 @@ RegisterNetEvent('RSGCore:Client:OnJobUpdate', jobChanged)
 RegisterNetEvent('vorp:setjob', jobChanged)
 
 ---------------------------------------------------------------------------
--- Notifications and progress bar (fks-utils panels)
+-- Notifications and progress bar (fks-core panels)
 --   Bridge.Notify('Message', 'success', 5000, 'Title') | Bridge.Notify({ title, description, type, duration })
 --   Bridge.Progress({ duration, label, canCancel, anim, prop, disable... }) -> true finished / false cancelled
 ---------------------------------------------------------------------------
 function Bridge.Notify(...)
-    return exports['fks-utils']:Notify(...)
+    return exports['fks-core']:Notify(...)
 end
 
 function Bridge.Progress(data)
-    return exports['fks-utils']:Progress(data)
+    return exports['fks-core']:Progress(data)
 end
 
 function Bridge.ProgressActive()
-    return exports['fks-utils']:ProgressActive()
+    return exports['fks-core']:ProgressActive()
 end
 
 function Bridge.CancelProgress()
-    return exports['fks-utils']:CancelProgress()
+    return exports['fks-core']:CancelProgress()
 end

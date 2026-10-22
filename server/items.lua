@@ -16,11 +16,11 @@ local function Catalogue()
 end
 
 RegisterCommand(Config.Items.command, function(src)
-    if src == 0 then return print('[fks-utils] /' .. Config.Items.command .. ' can only be used in game.') end
+    if src == 0 then return print('[fks-core] /' .. Config.Items.command .. ' can only be used in game.') end
     if not Bridge.IsItemsAdmin(src) then return Notify(src, _L('no_permission'), 'error') end
 
     local list = Catalogue()
-    TriggerLatentClientEvent('fks-utils:client:openItems', src, 200000, {
+    TriggerLatentClientEvent('fks-core:client:openItems', src, 200000, {
         items = not sentTo[src] and list or nil,
         players = Bridge.Players(),
         me = src,
@@ -32,7 +32,7 @@ end, false)
 
 AddEventHandler('playerDropped', function() sentTo[source] = nil end)
 
-RegisterNetEvent('fks-utils:server:give', function(name, kind, target, amount)
+RegisterNetEvent('fks-core:server:give', function(name, kind, target, amount)
     local src = source
     if not Bridge.IsItemsAdmin(src) then return end
 
@@ -62,7 +62,7 @@ RegisterNetEvent('fks-utils:server:give', function(name, kind, target, amount)
     end
 
     if Config.Items.logGives then
-        print(('[fks-utils] %s [%s] gave %sx %s (%s) to %s [%s]'):format(
+        print(('[fks-core] %s [%s] gave %sx %s (%s) to %s [%s]'):format(
             GetPlayerName(src), src, amount, entry.name, entry.kind, GetPlayerName(target), target))
     end
 end)

@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------
 -- Bridge (server): players, money, permissions, items, storages, notifications and version check
 -- for VORP / RSG with vorp_inventory / rsg-inventory / ox_inventory. Everything a script needs from
--- the framework goes through here, so supporting a framework change is done once, in fks-utils.
+-- the framework goes through here, so supporting a framework change is done once, in fks-core.
 ---------------------------------------------------------------------------
 Bridge = Bridge or {}
 
@@ -171,11 +171,11 @@ function Bridge.RegisterAdminCommand(name, help, args, cb, groups)
 end
 
 ---------------------------------------------------------------------------
--- Notifications (fks-utils panel)
+-- Notifications (fks-core panel)
 --   Bridge.Notify(src, 'Message', 'success', 5000, 'Title') | Bridge.Notify(src, { title, description, type, duration })
 ---------------------------------------------------------------------------
 function Bridge.Notify(src, ...)
-    TriggerClientEvent('fks-utils:client:notify', src, ...)
+    TriggerClientEvent('fks-core:client:notify', src, ...)
 end
 
 ---------------------------------------------------------------------------

@@ -96,7 +96,7 @@ function Bridge.Catalogue()
     elseif inv == 'rsg' then ok, list = pcall(RsgCatalogue)
     else return {} end
     if not ok then
-        print(('^1[fks-utils] could not read the item list (%s): %s^0'):format(inv, tostring(list)))
+        print(('^1[fks-core] could not read the item list (%s): %s^0'):format(inv, tostring(list)))
         return {}
     end
     table.sort(list, function(a, b) return (a.label or ''):lower() < (b.label or ''):lower() end)
@@ -158,7 +158,7 @@ function Bridge.Give(target, entry, amount)
     if not fn then return false end
     local ok, res, err = pcall(fn, target, entry, amount)
     if not ok then
-        print(('^1[fks-utils] give failed: %s^0'):format(tostring(res)))
+        print(('^1[fks-core] give failed: %s^0'):format(tostring(res)))
         return false
     end
     return res, err

@@ -3,7 +3,7 @@
 ---------------------------------------------------------------------------
 local open = false
 
-RegisterNetEvent('fks-utils:client:openItems', function(payload)
+RegisterNetEvent('fks-core:client:openItems', function(payload)
     open = true
     SetNuiFocus(true, true)
     SendUI('items:open', payload)
@@ -22,7 +22,7 @@ end)
 
 RegisterNUICallback('items:give', function(data, cb)
     if open and type(data) == 'table' then
-        TriggerServerEvent('fks-utils:server:give', data.name, data.kind, data.target, data.amount)
+        TriggerServerEvent('fks-core:server:give', data.name, data.kind, data.target, data.amount)
     end
     cb('ok')
 end)

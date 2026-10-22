@@ -5,7 +5,7 @@
 
 local lang = Config.Locale or 'en'
 if not (Locales and Locales[lang]) then
-    print(('^3[fks-utils] Locale "%s" not found - using "en".^0'):format(tostring(lang)))
+    print(('^3[fks-core] Locale "%s" not found - using "en".^0'):format(tostring(lang)))
     lang = 'en'
 end
 

@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------
 -- Notifications
---   exports['fks-utils']:Notify('Message', 'success', 5000, 'Title')
---   exports['fks-utils']:Notify({ title = 'Title', description = 'Message', type = 'error', duration = 5000 })
+--   exports['fks-core']:Notify('Message', 'success', 5000, 'Title')
+--   exports['fks-core']:Notify({ title = 'Title', description = 'Message', type = 'error', duration = 5000 })
 -- type: 'inform' | 'success' | 'error' | 'warning' (ox_lib / RSG names are accepted too)
 ---------------------------------------------------------------------------
 local KINDS = {
@@ -32,6 +32,6 @@ end
 
 exports('Notify', Notify)
 
-RegisterNetEvent('fks-utils:client:notify', function(...)
+RegisterNetEvent('fks-core:client:notify', function(...)
     Notify(...)
 end)

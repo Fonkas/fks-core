@@ -1,7 +1,7 @@
 'use strict';
 
 const IN_GAME = typeof GetParentResourceName === 'function';
-const RES = IN_GAME ? GetParentResourceName() : 'fks-utils';
+const RES = IN_GAME ? GetParentResourceName() : 'fks-core';
 const $ = (id) => document.getElementById(id);
 
 const post = (name, data = {}) => {

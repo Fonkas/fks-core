@@ -3,7 +3,7 @@ Config = {}
 -- Server console: "up to date" / "OUTDATED" compared with the version on GitHub
 Config.VersionCheck = {
     enabled  = true,
-    repo     = 'Fonkas/fks-utils',   -- GitHub "user/repository"
+    repo     = 'Fonkas/fks-core',   -- GitHub "user/repository"
     branch   = 'main',
     interval = 12,                   -- check again every X hours (0 = only on start)
 }
@@ -49,7 +49,7 @@ Config.Items = {
     maxWeapons = 10,                        -- weapons are created one by one, so keep this low
     vorpGroups = { 'admin', 'superadmin' }, -- VORP: user groups allowed
     rsgPermission = 'admin',                -- RSG: permission allowed (admin / god)
-    ace = 'fks-utils.items',                -- anyone with this ACE can also use it (add_ace group.admin fks-utils.items allow)
+    ace = 'fks-core.items',                 -- anyone with this ACE can also use it (add_ace group.admin fks-core.items allow)
     logGives = true,                        -- print every give to the server console
 
     -- where the item images live (nui:// path, {name} / {image} are replaced). nil = default of the inventory.
