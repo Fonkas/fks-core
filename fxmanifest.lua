@@ -5,8 +5,8 @@ lua54 'yes'
 
 name 'fks-core'
 author 'FKS'
-description 'Shared base of the FKS scripts: VORP / RSG bridge, notifications, progress bar, admin item panel'
-version '2.0.0'
+description 'Shared base of the FKS scripts: VORP / RSG bridge, shared UI, notifications, progress bar, admin item panel'
+version '2.1.0'
 license 'GPL-3.0-or-later'
 
 shared_scripts {
@@ -21,6 +21,7 @@ client_scripts {
     'client/notify.lua',
     'client/progress.lua',
     'client/items.lua',
+    'client/ui.lua',
 }
 
 server_scripts {
@@ -38,8 +39,10 @@ files {
     'import.lua',       -- the bridge other scripts import: shared_script '@fks-core/import.lua'
     'bridge/*.lua',
     'html/index.html',
+    'html/theme.css',   -- FKS design system (tokens, fonts, shared pieces)
     'html/style.css',
     'html/app.js',
+    'html/ui/*',        -- shared UI runtime + components (docs/UI-API.md)
     'html/fonts/*.woff2',
     'html/img/*',
     'html/pannel.png',

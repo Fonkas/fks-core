@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>FKS Core</title>
+    <link rel="stylesheet" href="theme.css">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="ui/ui.css">
 </head>
 <body>
     <!-- notifications -->
@@ -27,7 +29,7 @@
     <!-- admin item panel -->
     <div id="items" class="hidden">
         <section class="it-panel">
-            <button class="it-close" data-act="close" aria-label="Fechar"><svg><use href="#i-x" /></svg></button>
+            <button class="back danger it-close" data-act="close" aria-label="Fechar"><svg><use href="#i-x" /></svg></button>
 
             <header class="it-head">
                 <div class="eyebrow">FKS · <span data-l="eyebrow"></span></div>
@@ -94,9 +96,111 @@
         </section>
     </div>
 
-    <!-- filters and icons -->
+    <!-- ================= shared UI (exports['fks-core']:UIOpen) - html/ui/*, docs/UI-API.md ================= -->
+    <!-- camera layer behind the panel: drag / wheel / keys go to the script as the 'camera' action -->
+    <div id="ui-stage"></div>
+
+    <div id="ui" class="hidden" data-layout="side" data-position="left">
+        <section id="ui-panel">
+            <header class="ui-head">
+                <div class="eyebrow" id="ui-eyebrow"></div>
+                <h1 id="ui-title"></h1>
+                <svg class="rule" viewBox="0 0 300 12" preserveAspectRatio="none" aria-hidden="true">
+                    <path d="M2 6 Q75 3 146 6" /><path d="M154 6 Q225 9 298 6" />
+                    <path class="gem" d="M150 1 L155 6 L150 11 L145 6 Z" />
+                </svg>
+            </header>
+
+            <nav class="ui-crumbs" id="ui-crumbs">
+                <button class="back" id="ui-back"><svg><use href="#i-back" /></svg></button>
+                <button class="back" id="ui-prev"><svg><use href="#i-back" /></svg></button>
+                <span id="ui-crumb"></span>
+                <span id="ui-count"></span>
+                <button class="back" id="ui-next"><svg><use href="#i-fwd" /></svg></button>
+            </nav>
+
+            <p class="ui-desc" id="ui-desc"></p>
+            <div class="chips" id="ui-tabs"></div>
+
+            <main id="ui-view"></main>
+
+            <footer class="ui-foot" id="ui-foot">
+                <div class="ui-foot-row">
+                    <div class="ui-foot-btns" id="ui-foot-btns"></div>
+                    <div class="ui-money" id="ui-money"></div>
+                    <div class="hints" id="ui-hints"></div>
+                </div>
+                <div id="ui-main"></div>
+            </footer>
+
+            <div id="ui-modal" class="hidden">
+                <div class="modal-card">
+                    <h3 id="ui-modal-title"></h3>
+                    <div id="ui-modal-body"></div>
+                    <div class="modal-actions">
+                        <button class="btn ghost" id="ui-modal-cancel"></button>
+                        <button class="btn" id="ui-modal-ok"></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <aside id="ui-cam" class="hidden">
+            <div class="cam-presets" id="ui-cam-presets"></div>
+            <div class="cam-tools" id="ui-cam-tools"></div>
+            <div class="hints cam-hints" id="ui-cam-hints"></div>
+        </aside>
+    </div>
+
+    <div id="ui-toasts"></div>
+
+    <div id="ui-loading" class="hidden">
+        <svg class="spin" viewBox="0 0 64 64"><circle class="a" cx="32" cy="32" r="26" /></svg>
+        <p id="ui-loading-text"></p>
+    </div>
+
+    <div id="ui-cine" class="hidden">
+        <div class="bar top"></div>
+        <div class="bar bottom"></div>
+        <div id="ui-cine-card" class="hidden">
+            <h1 id="ui-cine-title"></h1>
+            <svg class="rule" viewBox="0 0 300 12" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M2 6 Q75 3 146 6" /><path d="M154 6 Q225 9 298 6" />
+                <path class="gem" d="M150 1 L155 6 L150 11 L145 6 Z" />
+            </svg>
+            <div id="ui-cine-sub"></div>
+        </div>
+        <div id="ui-cine-skip" class="hints"></div>
+    </div>
+
+    <div id="ui-subtitle" class="hidden"><p id="ui-subtitle-text"></p></div>
+
+    <div id="ui-choose" class="hidden">
+        <div class="choose-opts" id="ui-choose-opts"></div>
+        <div class="hints" id="ui-choose-hints"></div>
+    </div>
+
+    <!-- side card without focus (UI.Sheet) -->
+    <aside id="ui-sheet" class="hidden"></aside>
+
+    <!-- dots over world positions (UI.Pick) -->
+    <div id="ui-pick" class="hidden"><div id="ui-pick-hint"></div></div>
+
+    <!-- falling letters (UI.Minigame('keys')) -->
+    <div id="ui-minigame" class="hidden"></div>
+
+    <div id="ui-caption" class="hidden">
+        <p id="ui-caption-text"></p>
+        <div class="hints" id="ui-caption-hints"></div>
+    </div>
+
+    <!-- FKS icon sprite + ink filters: <svg class="ico"><use href="#i-name" /></svg> -->
     <svg width="0" height="0" style="position:absolute" aria-hidden="true">
         <defs>
+            <filter id="ink" x="-10%" y="-10%" width="120%" height="120%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="3" seed="7" result="n" />
+                <feDisplacementMap in="SourceGraphic" in2="n" scale="2.6" xChannelSelector="R" yChannelSelector="G" />
+            </filter>
             <filter id="ink-soft" x="-10%" y="-10%" width="120%" height="120%">
                 <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" seed="3" result="n" />
                 <feDisplacementMap in="SourceGraphic" in2="n" scale="1.4" />
@@ -104,18 +208,89 @@
             <linearGradient id="g-brass" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0" stop-color="#ffe29a" /><stop offset=".5" stop-color="#e2ae3c" /><stop offset="1" stop-color="#9a6b12" />
             </linearGradient>
+            <radialGradient id="g-gold" cx="40%" cy="35%" r="70%">
+                <stop offset="0" stop-color="#ffe29a" /><stop offset=".55" stop-color="#e2ae3c" /><stop offset="1" stop-color="#9a6b12" />
+            </radialGradient>
+            <radialGradient id="g-wax" cx="40%" cy="35%" r="70%">
+                <stop offset="0" stop-color="#f6eedd" /><stop offset=".6" stop-color="#e3d4b5" /><stop offset="1" stop-color="#b8a47f" />
+            </radialGradient>
         </defs>
 
-        <!-- spur rowel -->
+        <!-- spur rowel (progress bar) -->
         <symbol id="i-spur" viewBox="-12 -12 24 24">
             <path fill="url(#g-brass)" stroke="#3a2a0c" stroke-width=".6"
                 d="M0-11 L1.6-3.8 L7.8-7.8 L3.8-1.6 L11 0 L3.8 1.6 L7.8 7.8 L1.6 3.8 L0 11 L-1.6 3.8 L-7.8 7.8 L-3.8 1.6 L-11 0 L-3.8-1.6 L-7.8-7.8 L-1.6-3.8 Z" />
             <circle r="2.6" fill="#2a1d08" stroke="#e2ae3c" stroke-width=".9" />
         </symbol>
-        <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" /><path d="M15.5 15.5 L21 21" /></symbol>
+
+        <!-- navigation -->
+        <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" /></symbol>
+        <symbol id="i-fwd" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" /></symbol>
+        <symbol id="i-left" viewBox="0 0 24 24"><path d="M14.5 5.5 8 12l6.5 6.5" /></symbol>
+        <symbol id="i-right" viewBox="0 0 24 24"><path d="M9.5 5.5 16 12l-6.5 6.5" /></symbol>
+        <symbol id="i-up" viewBox="0 0 24 24"><path d="M5.5 14.5 12 8l6.5 6.5" /><path d="M12 8v11" /></symbol>
+        <symbol id="i-down" viewBox="0 0 24 24"><path d="M5.5 9.5 12 16l6.5-6.5" /><path d="M12 16V5" /></symbol>
         <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6 L18 18 M18 6 L6 18" /></symbol>
+        <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></symbol>
+        <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" /></symbol>
+        <symbol id="i-plus-c" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 8v8M8 12h8" /></symbol>
+        <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" /><path d="M15.5 15.5 L21 21" /></symbol>
+        <symbol id="i-grid" viewBox="0 0 24 24"><path d="M4 5h16M4 10h16M4 15h16M4 20h10" /></symbol>
+        <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></symbol>
+        <symbol id="i-undo" viewBox="0 0 24 24"><path d="M8 7H4V3" /><path d="M4.5 7A8 8 0 1 1 4 13" /></symbol>
+        <symbol id="i-dice" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3" /><circle cx="9" cy="9" r="1.1" class="dot" /><circle cx="15" cy="15" r="1.1" class="dot" /><circle cx="15" cy="9" r="1.1" class="dot" /><circle cx="9" cy="15" r="1.1" class="dot" /></symbol>
+
+        <!-- camera -->
+        <symbol id="i-panl" viewBox="0 0 24 24"><path d="M14.5 5.5 8 12l6.5 6.5" /><path d="M8 12h11" /></symbol>
+        <symbol id="i-panr" viewBox="0 0 24 24"><path d="M9.5 5.5 16 12l-6.5 6.5" /><path d="M16 12H5" /></symbol>
+        <symbol id="i-rotl" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7" /><path d="M4 4v4.5h4.5" /></symbol>
+        <symbol id="i-rotr" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7" /><path d="M20 4v4.5h-4.5" /></symbol>
+        <symbol id="i-reset" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5" /><circle cx="12" cy="12" r="1.2" class="dot" /></symbol>
+
+        <!-- people -->
+        <symbol id="i-male" viewBox="0 0 24 24"><circle cx="10" cy="14" r="5.2" /><path d="M14 10l6-6M15.5 4H20v4.5" /></symbol>
+        <symbol id="i-female" viewBox="0 0 24 24"><circle cx="12" cy="9" r="5.2" /><path d="M12 14.2V21M9 18h6" /></symbol>
+        <symbol id="i-cross" viewBox="0 0 24 24"><path d="M12 3v18M7 8h10" /></symbol>
+        <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" /></symbol>
+
+        <!-- horses and wagons -->
+        <symbol id="i-horse" viewBox="0 0 24 24"><path d="M8 21v-4.5c-1.9-.9-3-2.6-2.8-4.6L6.6 7 5 4.2l3 .9C9.4 3.8 11.4 3 13.6 3.4c3.3.6 5.6 3.4 5.9 6.8l.4 4.3c.1 1-.9 1.7-1.8 1.3l-2.5-1.1-1.9 1.7L15 21" /><circle cx="12.4" cy="8.2" r=".7" class="dot" /></symbol>
+        <symbol id="i-shoe" viewBox="0 0 24 24"><path d="M6.5 4C5 6 4.3 8.5 4.3 11a7.7 7.7 0 0 0 15.4 0c0-2.5-.7-5-2.2-7" /><path d="M6.5 4h2.4M15.1 4h2.4" /><path d="M7 14.5c1.3 2.3 3 3.2 5 3.2s3.7-.9 5-3.2" /><circle cx="6.4" cy="10" r=".5" class="dot" /><circle cx="17.6" cy="10" r=".5" class="dot" /><circle cx="8" cy="16.6" r=".5" class="dot" /><circle cx="16" cy="16.6" r=".5" class="dot" /></symbol>
+        <symbol id="i-wagon" viewBox="0 0 24 24"><path d="M3 15h15.5" /><path d="M4.5 15V9.5C4.5 7 7.8 5 12 5s7.5 2 7.5 4.5V15" /><path d="M8 5.8V15M12 5v10M16 5.8V15" /><circle cx="7" cy="18" r="2.4" /><circle cx="16.5" cy="18" r="2.4" /><path d="M19.5 13.5 23 15" /></symbol>
+        <symbol id="i-wheel" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="2" /><path d="M12 3v7M12 14v7M3 12h7M14 12h7M5.6 5.6l5 5M13.4 13.4l5 5M18.4 5.6l-5 5M10.6 13.4l-5 5" /></symbol>
+        <symbol id="i-saddle" viewBox="0 0 24 24"><path d="M3.5 10c2.2 0 3.2-2.4 5.3-2.4 2.4 0 3.6 3.3 7.4 3.3 2 0 3.2-1.1 4.3-2.2.5 2.3-1 5.6-4.4 6.1L9 15c-3.2 0-5.5-2.2-5.5-5z" /><path d="M12 15v4.5M9.8 20h4.4" /></symbol>
+        <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.3 0 1.9-1 1.4-2-.6-1.3.3-2.3 1.6-2.3H17a4 4 0 0 0 4-4C21 7.3 17 3 12 3z" /><circle cx="7.5" cy="11" r="1.1" class="dot" /><circle cx="10" cy="7" r="1.1" class="dot" /><circle cx="15" cy="7.2" r="1.1" class="dot" /></symbol>
+        <symbol id="i-pelt" viewBox="0 0 24 24"><path d="M7 4c1 2 3 2.2 5 2.2S16 6 17 4c1 3 1.2 5 3 7-2 1.2-2 4-2 7l-3 2H9l-3-2c0-3 0-5.8-2-7 1.8-2 2-4 3-7z" /></symbol>
+
+        <!-- actions and things -->
+        <symbol id="i-heal" viewBox="0 0 24 24"><path d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6z" /></symbol>
+        <symbol id="i-transfer" viewBox="0 0 24 24"><path d="M4 8h14l-3.5-3.5M20 16H6l3.5 3.5" /></symbol>
+        <symbol id="i-take" viewBox="0 0 24 24"><path d="M14 4h5v16h-5" /><path d="M3 12h11M10 8l4 4-4 4" /></symbol>
+        <symbol id="i-quill" viewBox="0 0 24 24"><path d="M20 4C13 5 8 10 6.2 17.8L4 20" /><path d="M20 4c-1 5.3-4.2 9.3-9.4 11" /><path d="M9 13.2l3 1" /></symbol>
+        <symbol id="i-hammer" viewBox="0 0 24 24"><path d="M13 4.5l6.5 6.5-2.2 2.2-6.5-6.5z" /><path d="M12.4 7.8 4 16.2 7.8 20l8.4-8.4" /></symbol>
+        <symbol id="i-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" /><path d="M14.6 9.4c-.5-1-1.5-1.5-2.6-1.5-1.4 0-2.5.8-2.5 2s1.1 1.6 2.5 2 2.5.8 2.5 2-1.1 2-2.5 2c-1.1 0-2.1-.5-2.6-1.5M12 6.3v1.6m0 8.2v1.6" /></symbol>
+        <symbol id="i-gold" viewBox="0 0 24 24"><path d="M3.5 16.5 6.8 9l5.3-2.3 6.2 3.1 2.2 6.2-5.3 3.2H8.1z" /><path d="M8 11.5l3 1.5 4-1.5" /></symbol>
+        <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5 9h14l-1.2 11H6.2z" /><path d="M9 9V7a3 3 0 0 1 6 0v2" /></symbol>
+        <!-- chat and reports -->
+        <symbol id="i-send" viewBox="0 0 24 24"><path d="M3 11.5 L21 3 L14 21 L11 13 Z M11 13 L21 3" /></symbol>
+        <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2" /><path d="M12 2.5 V5.5 M12 18.5 V21.5 M2.5 12 H5.5 M18.5 12 H21.5 M5.3 5.3 L7.4 7.4 M16.6 16.6 L18.7 18.7 M5.3 18.7 L7.4 16.6 M16.6 7.4 L18.7 5.3" /><circle cx="12" cy="12" r="6.5" /></symbol>
+        <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" /><path d="M4 21 C4 16 8 14 12 14 C16 14 20 16 20 21" /></symbol>
+        <symbol id="i-question" viewBox="0 0 24 24"><path d="M8.5 8.5 C8.5 5.5 11 4 12.5 4 C15 4 16.5 5.8 16.5 8 C16.5 11 12.5 11.5 12.5 15" /><circle cx="12.5" cy="19.5" r=".6" /></symbol>
+        <symbol id="i-bug" viewBox="0 0 24 24"><ellipse cx="12" cy="14" rx="5" ry="6.5" /><path d="M12 7.5 V20.5 M9 6 L7.5 3.5 M15 6 L16.5 3.5 M7 11 H3.5 M17 11 H20.5 M7 15.5 H3.5 M17 15.5 H20.5 M7.8 19 L5 21 M16.2 19 L19 21" /></symbol>
+        <symbol id="i-flip" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="5.5" /><path d="M12 9.5 V14.5" /></symbol>
+        <symbol id="i-hash" viewBox="0 0 24 24"><path d="M9 4 L7 20 M17 4 L15 20 M4.5 9 H20 M4 15 H19.5" /></symbol>
+        <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21 C12 21 5 14 5 9.5 C5 5.5 8 3 12 3 C16 3 19 5.5 19 9.5 C19 14 12 21 12 21 Z" /><circle cx="12" cy="9.5" r="2.5" /></symbol>
+        <symbol id="i-hand" viewBox="0 0 24 24"><path d="M4 12 H16 M11 7 L16 12 L11 17 M20 4 V20" /></symbol>
+        <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21 V3.5 M5 4 H17 L14.5 8 L17 12 H5" /></symbol>
+        <symbol id="i-check" viewBox="0 0 24 24"><path d="M4 12.5 L9.5 18 L20 6" /></symbol>
+        <symbol id="i-release" viewBox="0 0 24 24"><path d="M15 4 H19 V20 H15 M10 8 L5 12 L10 16 M5 12 H15" /></symbol>
+        <symbol id="i-box" viewBox="0 0 24 24"><path d="M4 8l8-4 8 4v8.8l-8 4.2-8-4.2z" /><path d="M4 8l8 4 8-4M12 12v9" /></symbol>
     </svg>
 
     <script src="app.js"></script>
+    <script src="ui/runtime.js"></script>
+    <script src="ui/components.js"></script>
+    <script src="ui/overlays.js"></script>
+    <script src="ui/ext.js"></script>
 </body>
 </html>

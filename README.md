@@ -121,6 +121,33 @@ exports['fks-core']:ProgressActive()  -- true while a bar is running
 exports['fks-core']:CancelProgress()  -- cancels the current bar
 ```
 
+## Shared UI (for script developers)
+
+fks-core draws the interface of every FKS script, so scripts ship no HTML of their own and the
+server runs a single NUI. A script describes the screen in Lua and gets the clicks back:
+
+```lua
+-- client (the `UI` table comes from shared_script '@fks-core/import.lua')
+UI.On('greet', function(d)
+    return { toast = { text = ('Hello, %s!'):format(d.values.name), type = 'success' } }
+end)
+
+UI.Open({
+    eyebrow = 'Saloon', title = 'Valentine', subtitle = 'Who are you?',
+    body = {
+        { type = 'input', name = 'name', label = 'Name', max = 24 },
+        { type = 'button', label = 'Say hello', action = 'greet', requires = 'name' },
+    },
+})
+
+local sure = UI.Confirm({ title = 'Leave town?', text = 'You lose your **bounty** progress.' })
+```
+
+Also available as plain exports (`exports['fks-core']:UIOpen(view, opts, handler)`, `UIConfirm`, `UIPrompt`…).
+The look of every FKS script is set in one place: `Config.Theme` (scale, side of the screen, colors).
+Full reference, components and focus rules: [docs/UI-API.md](docs/UI-API.md).
+To design a screen without a server, open `html/index.html` in a browser (dev mode with sample views).
+
 ## /items (admin)
 
 Panel with every item, weapon and ammo from the inventory (vorp_inventory, rsg-inventory or ox_inventory), with images,

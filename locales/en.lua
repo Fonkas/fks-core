@@ -38,5 +38,12 @@ Locales['en'] = {
         no_players = 'There is nobody else in town.',
         cancel_hint = 'Cancel',
         cancelled_label = 'Cancelled',
+        -- shared UI
+        ui_confirm = 'Confirm',
+        ui_optional = 'optional',
+        ui_back = 'Back',
+        ui_loading = 'Loading...',
+        ui_cash = 'Cash',
+        ui_gold = 'Gold',
     },
 }

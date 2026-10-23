@@ -18,6 +18,7 @@ RegisterNUICallback('ready', function(_, cb)
         action = 'init',
         data = {
             locale = LocaleUI,
+            theme = Config.Theme,
             notify = Config.Notify,
             progress = { position = Config.Progress.position, cancelKey = Config.Progress.cancelKeyLabel },
         },

@@ -388,9 +388,23 @@ document.addEventListener('keydown', (ev) => {
     }
 });
 
+/* ================================================================ theme
+   Config.Theme: scale multiplies the base unit, colors override the tokens of theme.css
+   (paper2 -> --paper-2, gold2 -> --gold-2). */
+function applyTheme(theme) {
+    const root = document.documentElement.style;
+    if (typeof FKS !== 'undefined' && theme.position) FKS.THEME.position = theme.position;
+    const scale = Number(theme.scale);
+    if (scale > 0) root.setProperty('--scale', scale);
+    Object.entries(theme.colors || {}).forEach(([key, value]) => {
+        if (typeof value === 'string' && value) root.setProperty(`--${key.replace(/(\d+)$/, '-$1')}`, value);
+    });
+}
+
 /* ================================================================ messages from Lua */
 const handlers = {
     init(d) {
+        applyTheme(d.theme || {});
         L = d.locale || {};
         cfg.notify = { ...cfg.notify, ...(d.notify || {}) };
         cfg.progress = { ...cfg.progress, ...(d.progress || {}) };

@@ -17,6 +17,26 @@ Config.Inventory = 'auto'
 Config.Locale = 'pt'
 
 ---------------------------------------------------------------------------
+-- Theme: the look of every FKS script UI (they are all drawn by fks-core)
+---------------------------------------------------------------------------
+Config.Theme = {
+    scale = 1.0,            -- size of everything (1.0 = default, 1.2 = 20% bigger)
+    position = 'left',      -- side of the screen for script panels: 'left' | 'right'
+
+    -- colors (nil / removed = default). Any CSS color: '#f2c14e', 'rgb(242, 193, 78)'...
+    colors = {
+        -- paper   = '#e8dcc4',  -- main text
+        -- paper2  = '#cfc2a6',  -- secondary text
+        -- muted   = '#a39a88',  -- labels, hints
+        -- gold    = '#f2c14e',  -- highlights, selected, main buttons
+        -- gold2   = '#c9962a',  -- darker gold (gradients)
+        -- danger  = '#d9553f',  -- errors, delete / sell
+        -- good    = '#9cc27a',  -- success
+        -- line    = 'rgba(232, 220, 196, .22)',  -- borders
+    },
+}
+
+---------------------------------------------------------------------------
 -- Notifications
 -- The panel is html/pannel.png and the logo on its left is html/logo.png
 -- (just replace that file with your server logo - .png, .jpg, .webp or .svg).

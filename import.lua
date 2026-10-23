@@ -1,6 +1,7 @@
 ---------------------------------------------------------------------------
 -- fks-core bridge: one line in the fxmanifest.lua of a script and it gets the `Bridge`
--- table (VORP / RSG + vorp_inventory / rsg-inventory / ox_inventory) on the server and the client.
+-- table (VORP / RSG + vorp_inventory / rsg-inventory / ox_inventory) on the server and the client,
+-- plus the `UI` table on the client (shared FKS interface, see docs/UI-API.md).
 --
 --   shared_script '@fks-core/import.lua'
 --
@@ -25,7 +26,10 @@ if resource ~= CORE then
     end
 end
 
-for _, file in ipairs({ 'bridge/shared.lua', ('bridge/%s.lua'):format(side) }) do
+local files = { 'bridge/shared.lua', ('bridge/%s.lua'):format(side) }
+if side == 'client' then files[#files + 1] = 'bridge/ui.lua' end   -- the `UI` table (docs/UI-API.md)
+
+for _, file in ipairs(files) do
     local code = LoadResourceFile(CORE, file)
     if not code then
         print(('^1[%s] could not read @fks-core/%s - update fks-core^0'):format(resource, file))

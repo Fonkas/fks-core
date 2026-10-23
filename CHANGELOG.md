@@ -1,5 +1,25 @@
 # Changelog
 
+## 2.1.0
+
+- **Shared UI:** fks-core now draws the interface of every FKS script, so scripts ship no HTML and the server runs a
+  single NUI. Scripts describe screens in Lua with the `UI` table (from `@fks-core/import.lua`) or the `UI*` exports
+  and get the clicks back. fks-core alone handles the NUI focus: one script at a time, ESC, pause menu, death,
+  clean-up when a script stops. Reference: `docs/UI-API.md`.
+- Components: section, text, empty, row, grid, kv, badges, button, segmented, dials, slider, stats, list, cards,
+  input, textarea, select, number, date, medals, seals, carousel, ring, facts, tier, chips, timers, thread,
+  composer. Overlays:
+  confirm / prompt dialogs, toasts, loading, camera stage and rail, cinematic bars, subtitles, caption, choose,
+  side sheet (`UI.Sheet`), world point picker (`UI.Pick`) and the falling letters minigame (`UI.Minigame('keys')`).
+- **Extensions:** a script can load its own JS / CSS into the fks-core NUI for screens that are not menus
+  (`UI.Extend`, `UI.ExtSend`, `UI.OnExt`, `UI.ExtFocus`, `UI.HasFocus`) — used by the fks-chat feed.
+  Conversation components `thread` and `composer`, colour picker `color`; extensions can draw core components
+  with `api.render` (fks-hud `/hudsettings`).
+- **Design system:** `html/theme.css` (fonts, colors, shared pieces) and one icon sprite for every FKS script.
+  New `Config.Theme`: scale, side of the screen and colors of every FKS script in one place.
+- Browser dev mode: open `html/index.html` outside the game to design screens with sample views.
+- Nothing breaks: everything is new; notifications, progress bar and `/items` work as before.
+
 ## 2.0.0
 
 - **Renamed from fks-utils to fks-core.** It is now the single dependency of every FKS script (bridge, notifications,

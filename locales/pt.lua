@@ -38,5 +38,12 @@ Locales['pt'] = {
         no_players = 'Não há mais ninguém na cidade.',
         cancel_hint = 'Cancelar',
         cancelled_label = 'Cancelado',
+        -- UI partilhada
+        ui_confirm = 'Confirmar',
+        ui_optional = 'opcional',
+        ui_back = 'Voltar',
+        ui_loading = 'A carregar...',
+        ui_cash = 'Dinheiro',
+        ui_gold = 'Ouro',
     },
 }
