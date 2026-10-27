@@ -159,6 +159,7 @@ selectable box (a store link), `note` a small line under the text.
 | `UI.Toast(text, type?)` | Toast at the top of the screen (`inform`, `success`, `error`). For normal notifications keep using `Notify`. |
 | `UI.Cinematic({ bars?, title?, sub?, skip?, skipKey? })` / `UI.Cinematic(false)` | Letterbox bars and a title card (fks-character train arrival). Calling it again without `title` fades the card out. `skip` is the text next to `skipKey` (default `ENTER`); the script handles the key. |
 | `UI.Subtitle(text, ms?)` / `UI.Subtitle()` | Bottom subtitle line, optional auto-hide. |
+| `UI.Tracker({ label, seconds?, bar = { value, label, tone } })` / `UI.Tracker(false)` | Small box at the top centre: a countdown (sending `seconds` again re-syncs it) and an optional 0-100% bar, `tone` = good / warn / bad (mission timer, detection). |
 | `UI.Caption({ text, hints?, seconds? })` / `UI.Caption(false)` | Corner caption with key hints and an optional countdown (fks-character photo). |
 
 ### Side sheet (no focus)
@@ -195,7 +196,7 @@ view = {
     footer  = { … },             -- see below; a page's footer is merged over it
     hints   = { { 'ESC', 'Close' } },  -- default key hints (a page can override)
     camera  = { … },             -- section 9
-    layout  = 'side',            -- 'side' (panel on the side) | 'center' (full-screen page)
+    layout  = 'side',            -- 'side' (panel on the side) | 'center' (full-screen page) | 'wide' (big landscape panel, like /items)
 }
 
 -- one-page view: put the page fields at the top level instead of `pages`
@@ -305,6 +306,10 @@ switches and `UI.Update`, and every button action sends them as `values`.
 Inside `prompt` fields also take `required`, `pattern` (regex) and `match` (the text the
 player must type, ignoring case and extra spaces): the OK button stays disabled until all
 of them pass.
+
+Helper classes (`class = '...'`, any component): `box` (framed card; a `section` as its first child gets ornament
+lines), `big` on `kv` (stat tiles with big numbers), `hero` on `ring` / `tier` (bigger), `fill` on a `grid` (its
+children stretch to the same height in the wide layout).
 
 `text` also takes `style = 'sub'` (centered small caps line under a title) and `row` takes
 `align = 'center'`.

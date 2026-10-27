@@ -352,6 +352,37 @@
         box.classList.remove('hidden');
     }
 
+    /* ------------------------------------------------------------------ tracker (small top-centre timer + bar) */
+    let trEnd = 0, trTimer = null;
+    function tracker(d) {
+        const box = $('ui-tracker');
+        if (!d.on) { box.classList.add('hidden'); clearInterval(trTimer); trTimer = null; return; }
+        $('ui-tracker-label').textContent = txt(d.label);
+        const time = $('ui-tracker-time');
+        const hasTime = d.seconds !== undefined && d.seconds !== null;
+        if (hasTime) {
+            trEnd = Date.now() + Number(d.seconds) * 1000;
+            const tick = () => {
+                const s = Math.max(0, Math.round((trEnd - Date.now()) / 1000));
+                time.textContent = `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+                time.classList.toggle('low', s <= 60);
+            };
+            tick();
+            if (!trTimer) trTimer = setInterval(tick, 1000);
+        }
+        time.classList.toggle('hidden', !hasTime);
+        const bar = $('ui-tracker-bar');
+        if (d.bar) {
+            const v = Math.max(0, Math.min(1, Number(d.bar.value) || 0));
+            bar.className = `tr-bar ${d.bar.tone || ''}`;
+            bar.querySelector('i').style.width = `${v * 100}%`;
+            bar.querySelector('span').textContent = `${txt(d.bar.label)} ${Math.round(v * 100)}%`;
+        } else {
+            bar.className = 'tr-bar hidden';
+        }
+        box.classList.remove('hidden');
+    }
+
     /* ------------------------------------------------------------------ sheet (side card without focus) */
     const sheet = (() => {
         const box = $('ui-sheet');
@@ -517,6 +548,7 @@
         'ui:subtitle': subtitle,
         'ui:choose': choose,
         'ui:caption': caption,
+        'ui:tracker': tracker,
         'ui:sheet': sheet,
         'ui:pick': pick,
         'ui:minigame': minigame,

@@ -43,6 +43,7 @@ function UI.Toast(text, kind) core():UIToast(text, kind) end
 function UI.Cinematic(o) core():UICinematic(o) end
 function UI.Subtitle(text, ms) core():UISubtitle(text, ms) end
 function UI.Caption(o) core():UICaption(o) end
+function UI.Tracker(o) core():UITracker(o) end   -- small top-centre box: { label, seconds, bar = { value, label, tone } } | false
 
 -- Side card without focus (one at a time); UI.Sheet(id, false) hides it
 function UI.Sheet(id, view) core():UISheet(id, view) end

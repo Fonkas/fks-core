@@ -402,6 +402,26 @@ function UISheet(id, view)
 end
 
 ---------------------------------------------------------------------------
+-- Tracker: small box at the top centre, no focus (mission timer, a 0-100% bar). One on screen at a time.
+--   UITracker({ label = 'Contract', seconds = 1800, bar = { value = 0.4, label = 'Detection', tone = 'good' | 'warn' | 'bad' } })
+--   seconds counts down by itself (sending it again re-syncs it); UITracker(false) hides it
+---------------------------------------------------------------------------
+local tracker = nil
+function UITracker(o)
+    local owner = Owner()
+    if type(o) ~= 'table' then
+        if tracker == owner then
+            tracker = nil
+            SendUI('ui:tracker', { on = false })
+        end
+        return
+    end
+    tracker = owner
+    o.on = true
+    SendUI('ui:tracker', o)
+end
+
+---------------------------------------------------------------------------
 -- Extensions: a script loads its own JS / CSS into this NUI (still one frame on the server).
 -- For screens that are not menus, e.g. the fks-chat message feed. The script's JS registers with
 -- FKS.extension(owner, { messages = { ... } }) and talks to its Lua through api.call / UIExtSend.
@@ -474,6 +494,10 @@ AddEventHandler('onClientResourceStop', function(res)
         sheets[res] = nil
         SendUI('ui:sheet', { on = false, owner = res })
     end
+    if tracker == res then
+        tracker = nil
+        SendUI('ui:tracker', { on = false })
+    end
     if exts[res] then
         exts[res] = nil
         SendUI('ui:ext:remove', { owner = res })
@@ -503,6 +527,7 @@ exports('UIToast', UIToast)
 exports('UICinematic', UICinematic)
 exports('UISubtitle', UISubtitle)
 exports('UICaption', UICaption)
+exports('UITracker', UITracker)
 exports('UIChoose', UIChoose)
 exports('UIPick', UIPick)
 exports('UIMinigame', UIMinigame)

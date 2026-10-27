@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.1.1
+
+- New view layout `layout = 'wide'`: a big landscape panel in the middle of the screen with the `/items` frame
+  (`panel_wide.png`), keeping the tabs. Used by the fks-gangs ledger.
+- `UI.Tracker({ label, seconds, bar = { value, label, tone } })` / `UI.Tracker(false)`: a small box at the top centre
+  of the screen (timer that counts down by itself + optional 0-100% bar), no focus. Used by the fks-gangs contracts.
+- Helper classes for any component (`class = '...'`): `box` (framed card with an ornamented section title),
+  `big` on `kv` (big stat numbers), `hero` on `ring` / `tier` (a size up). In the wide layout grids align to the top
+  (`class = 'fill'` on a grid makes its cards the same height).
+
 ## 2.1.0
 
 - **Shared UI:** fks-core now draws the interface of every FKS script, so scripts ship no HTML and the server runs a
