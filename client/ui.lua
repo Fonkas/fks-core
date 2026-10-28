@@ -23,6 +23,16 @@ local function Owner()
     return GetInvokingResource() or GetCurrentResourceName()
 end
 
+-- Tables from the UI bridge arrive as { __json = '...' }: the msgpack between resources drops anything
+-- nested more than 16 tables deep, so the bridge sends JSON (bridge/ui.lua). Plain tables still work.
+local function Unpack(v)
+    if type(v) == 'table' and type(v.__json) == 'string' then
+        local ok, t = pcall(json.decode, v.__json)
+        if ok then return t end
+    end
+    return v
+end
+
 -- ends a picker once (Choose / Pick / Minigame); `done` also stops its refresh loop
 local function Resolve(b, value)
     if not b or b.done then return end
@@ -64,7 +74,7 @@ local function Call(owner, handler, action, data)
         print(('^1[fks-core] %s: UI action \'%s\' failed (error above, in the %s console)^0'):format(owner, tostring(action), owner))
         return false, nil
     end
-    return true, res
+    return true, Unpack(res)
 end
 
 local function Finish(reason)
@@ -125,6 +135,7 @@ end
 function UIOpen(view, opts, handler)
     local owner = Owner()
     if Busy(owner) then return false, 'busy' end
+    view = Unpack(view)
     if type(view) ~= 'table' then return false, 'invalid_view' end
     opts = type(opts) == 'table' and opts or {}
 
@@ -156,15 +167,18 @@ local function Mine()
 end
 
 function UIUpdate(view)
+    view = Unpack(view)
     if Mine() and type(view) == 'table' then SendUI('ui:update', { view = view }) end
 end
 
 function UISetPage(id, page)
+    page = Unpack(page)
     if Mine() and type(page) == 'table' then SendUI('ui:page', { id = id, page = page }) end
 end
 
 function UIPatch(a, b)
     if not Mine() then return end
+    a, b = Unpack(a), Unpack(b)
     local patches = type(a) == 'table' and a or { [a] = b }
     SendUI('ui:patch', { patches = patches })
 end
@@ -222,11 +236,13 @@ local function Modal(kind, data)
 end
 
 function UIConfirm(o)
+    o = Unpack(o)
     local r = Modal('confirm', type(o) == 'table' and o or { text = tostring(o or '') })
     return type(r) == 'table' and r.ok == true
 end
 
 function UIPrompt(o)
+    o = Unpack(o)
     local r = Modal('prompt', type(o) == 'table' and o or {})
     if type(r) == 'table' and r.ok then return r.values or {} end
 end
@@ -389,6 +405,7 @@ end
 --   UISheet('horse', false)   -- hides it (calling again with the same id refreshes it in place)
 ---------------------------------------------------------------------------
 function UISheet(id, view)
+    view = Unpack(view)
     local owner = Owner()
     if type(view) ~= 'table' then
         if sheets[owner] ~= nil and (id == nil or id == false or sheets[owner] == id) then

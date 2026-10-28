@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.1.2
+
+- Fix: deep views lost their innermost parts. The msgpack that carries data between resources drops anything
+  nested more than 16 tables deep, so a `select` inside a `prompt` on a button of a `list` row (inside a `box` grid)
+  opened empty or without its field. The `UI` bridge now sends views, pages, patches, dialogs, sheets and action
+  answers to fks-core as JSON, and fks-core unpacks them. Plain tables passed to the `UI*` exports still work.
+  Scripts only need fks-core restarted; no code change.
+
 ## 2.1.1
 
 - New view layout `layout = 'wide'`: a big landscape panel in the middle of the screen with the `/items` frame

@@ -11,10 +11,18 @@ UI = {}
 local CORE = 'fks-core'
 local handlers = {}
 
+-- Tables cross to fks-core as JSON: the msgpack between resources drops anything nested more than
+-- 16 tables deep (a select inside a prompt inside a list row arrived empty). fks-core unpacks it.
+local function Pack(t)
+    if type(t) ~= 'table' then return t end
+    local ok, s = pcall(json.encode, t)
+    return ok and { __json = s } or t
+end
+
 -- One dispatcher for every action of this script: fks-core calls it with (action, data).
 local function Dispatch(action, data)
     local fn = handlers[action]
-    if fn then return fn(data) end
+    if fn then return Pack(fn(data)) end
 end
 
 local function core()
@@ -25,17 +33,17 @@ function UI.On(action, fn) handlers[action] = fn end
 function UI.Off(action) handlers[action] = nil end
 
 -- Menu
-function UI.Open(view, opts) return core():UIOpen(view, opts or {}, Dispatch) end
-function UI.Update(view) core():UIUpdate(view) end
-function UI.SetPage(id, page) core():UISetPage(id, page) end
-function UI.Patch(a, b) core():UIPatch(a, b) end
+function UI.Open(view, opts) return core():UIOpen(Pack(view), opts or {}, Dispatch) end
+function UI.Update(view) core():UIUpdate(Pack(view)) end
+function UI.SetPage(id, page) core():UISetPage(id, Pack(page)) end
+function UI.Patch(a, b) core():UIPatch(Pack(a), Pack(b)) end
 function UI.Go(pageId) core():UIGo(pageId) end
 function UI.Close() core():UIClose() end
 function UI.IsOpen() return core():UIIsOpen() end
 
 -- Dialogs (block until answered)
-function UI.Confirm(o) return core():UIConfirm(o) end
-function UI.Prompt(o) return core():UIPrompt(o) end
+function UI.Confirm(o) return core():UIConfirm(Pack(o)) end
+function UI.Prompt(o) return core():UIPrompt(Pack(o)) end
 
 -- Overlays
 function UI.Loading(text) core():UILoading(text) end
@@ -46,7 +54,7 @@ function UI.Caption(o) core():UICaption(o) end
 function UI.Tracker(o) core():UITracker(o) end   -- small top-centre box: { label, seconds, bar = { value, label, tone } } | false
 
 -- Side card without focus (one at a time); UI.Sheet(id, false) hides it
-function UI.Sheet(id, view) core():UISheet(id, view) end
+function UI.Sheet(id, view) core():UISheet(id, Pack(view)) end
 
 -- Blocking pickers (take the focus until answered)
 function UI.Choose(o, onChange) return core():UIChoose(o, onChange) end   -- value; onChange(value) while browsing
