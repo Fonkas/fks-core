@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.2.0
+
+- New components (used by fks-banking, available to every script):
+  - `dropdown`: the `select` field drawn in HTML (with an optional search box). RedM's browser draws the popup of the
+    native `<select>` as a broken texture; this one works in pages and in `prompt` dialogs. Same props as `select`.
+  - `signature`: a signed name drawn as handwriting over a line, with a caption and date, or a dashed "awaiting
+    signature" line while unsigned (bills, loan agreements, contracts).
+  - `table`: a wide table with text search (accents ignored), dropdown filters and sortable columns, all inside the
+    NUI; rows can be clicked and carry their own buttons (logs, ledgers, admin lists).
+- Icons can be a script's own SVG: `icon = '<svg viewBox="0 0 24 24">...</svg>'` (any component with an icon). The
+  markup is cleaned (no scripts, handlers, links or styles) and drawn with the `.ico` style, so it takes the theme
+  colours like the sprite icons. fks-banking keeps its icons in `img/icons/` and sends them this way.
+- `Bridge.StashUsage(id)` (server): how full a storage is, in the unit `Bridge.OpenStash` limits it by (used slots on
+  ox_inventory / rsg-inventory, items on vorp_inventory). Used before shrinking a storage.
+
 ## 2.1.2
 
 - Fix: deep views lost their innermost parts. The msgpack that carries data between resources drops anything

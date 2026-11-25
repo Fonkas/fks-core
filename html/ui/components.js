@@ -948,4 +948,299 @@
             return field(p, c, box);
         },
     });
+
+    /* ================================================================== dropdown (2.2.0) */
+    // A list that opens under its button, drawn in HTML: RedM's browser draws the popup of the native <select>
+    // as a broken texture, so scripts should prefer this one (also used by the `table` filters).
+    //   same props as `select` (name, label, options = { value | { value, label, sub? } }, value, action, note)
+    //   + placeholder (no value yet), search = true (a search box; on by default with more than 8 options),
+    //     searchPlaceholder, empty (text when the search finds nothing), disabled
+    let openPop = null;
+    const closePop = () => { if (openPop) { const p = openPop; openPop = null; p.close(); } };
+    document.addEventListener('mousedown', (e) => {
+        if (openPop && !openPop.node.contains(e.target) && !openPop.owner.contains(e.target)) closePop();
+    }, true);
+    document.addEventListener('scroll', (e) => { if (openPop && !openPop.node.contains(e.target)) closePop(); }, true);
+    window.addEventListener('resize', closePop);
+    // ESC closes the open list first (not the modal / page / panel)
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && openPop) { e.stopImmediatePropagation(); e.preventDefault(); closePop(); }
+    }, true);
+
+    // the control alone (no label): { box } · getCur() -> current value · onPick(value)
+    function dropdownControl(p, getCur, onPick) {
+        const opts = arr(p.options).map((o) => (typeof o === 'object' ? o : { value: o, label: String(o) }));
+        const box = el('div', 'ui-dd');
+        const btn = el('button', 'ui-dd-btn');
+        btn.type = 'button';
+        btn.disabled = !!p.disabled;
+        const lab = el('span', 'ui-dd-lab');
+        btn.append(lab, el('i', 'ui-dd-chev'));
+        box.appendChild(btn);
+        const paint = () => {
+            const o = opts.find((x) => String(x.value) === String(getCur()));
+            lab.textContent = o ? txt(o.label) : (p.placeholder || '—');
+            lab.classList.toggle('ph', !o);
+        };
+        const open = () => {
+            const pop = el('div', 'ui-dd-pop');
+            let search = null;
+            const rows = el('div', 'ui-dd-list');
+            const draw = (q) => {
+                rows.innerHTML = '';
+                const needle = String(q || '').trim().toLowerCase();
+                const shown = opts.filter((o) => !needle || `${txt(o.label)} ${txt(o.sub)}`.toLowerCase().includes(needle));
+                shown.forEach((o) => {
+                    const r = el('div', `ui-dd-opt${String(o.value) === String(getCur()) ? ' on' : ''}`);
+                    r.appendChild(el('span', '', txt(o.label)));
+                    if (o.sub) r.appendChild(el('small', '', txt(o.sub)));
+                    r.addEventListener('click', () => { closePop(); onPick(o.value); paint(); });
+                    rows.appendChild(r);
+                });
+                if (!shown.length) rows.appendChild(el('div', 'ui-dd-none', p.empty || '—'));
+            };
+            if (p.search === true || (p.search !== false && opts.length > 8)) {
+                search = el('input', 'ui-dd-search');
+                search.type = 'text';
+                search.placeholder = p.searchPlaceholder || '…';
+                search.spellcheck = false;
+                search.addEventListener('input', () => draw(search.value));
+                pop.appendChild(search);
+            }
+            pop.appendChild(rows);
+            draw('');
+            document.body.appendChild(pop);
+            // follows the button (the panel may still be sliding in); closes when the button goes away
+            let frame = 0;
+            const place = () => {
+                if (!btn.isConnected) { closePop(); return; }
+                const r = btn.getBoundingClientRect();
+                const up = window.innerHeight - r.bottom < 260 && r.top > window.innerHeight - r.bottom;
+                pop.style.left = `${r.left}px`;
+                pop.style.width = `${Math.max(r.width, 180)}px`;
+                pop.style.top = up ? '' : `${r.bottom + 4}px`;
+                pop.style.bottom = up ? `${window.innerHeight - r.top + 4}px` : '';
+                pop.classList.toggle('up', up);
+                frame = requestAnimationFrame(place);
+            };
+            place();
+            box.classList.add('open');
+            openPop = { node: pop, owner: box, close: () => { cancelAnimationFrame(frame); pop.remove(); box.classList.remove('open'); } };
+            const on = rows.querySelector('.ui-dd-opt.on');
+            if (on) on.scrollIntoView({ block: 'nearest' });
+            if (search) setTimeout(() => search.focus(), 0);
+        };
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (openPop && openPop.owner === box) { closePop(); return; }
+            closePop();
+            open();
+        });
+        paint();
+        return { box, paint };
+    }
+    FKS.dropdown = dropdownControl;
+
+    C('dropdown', {
+        render(p, c) {
+            let cur = p.name ? c.value(p.name, p.value) : p.value;
+            const { box } = dropdownControl(p, () => cur, (v) => {
+                cur = v;
+                p.value = v;
+                if (p.name) c.setValue(p.name, v);
+                if (p.action) c.emit(p.action, { name: p.name, id: p.id, value: v });
+            });
+            if (p.name && cur !== undefined) c.setValue(p.name, cur);
+            return field(p, c, box);
+        },
+    });
+
+    /* ================================================================== signature (2.2.0) */
+    // A signed name drawn as handwriting over a line (bills, contracts, loan agreements). Display only:
+    // the script decides when something is signed and sends the name.
+    //   name     the signed name ('' / nil = not signed yet: shows `pending` in a muted dashed style)
+    //   label    caption under the line ('Signature of the debtor')
+    //   date     text next to the caption ('2026-11-23 14:05')
+    //   pending  text shown while unsigned ('Awaiting signature')
+    //   align    'left' | 'center' (default) | 'right'
+    C('signature', {
+        render(p) {
+            const signed = p.name !== undefined && p.name !== null && p.name !== '';
+            const box = el('div', `ui-sig ${signed ? 'signed' : 'pending'} ${p.align || 'center'}`);
+            box.appendChild(el('div', 'ui-sig-ink', signed ? txt(p.name) : txt(p.pending || '')));
+            box.appendChild(el('div', 'ui-sig-line'));
+            const cap = [p.label, p.date].filter((v) => v !== undefined && v !== null && v !== '').map(txt).join(' · ');
+            if (cap) box.appendChild(el('small', 'ui-sig-cap', cap));
+            return box;
+        },
+    });
+
+    /* ================================================================== table (2.2.0) */
+    // A wide table with optional search, filters and sortable columns, all done inside the NUI (no Lua
+    // round trip), for logs, ledgers and admin lists.
+    //   columns  { { key, label, align = 'left' | 'right' | 'center', width?, sort = true? } }
+    //   rows     { { value, cells = { [key] = text | { text, tone } }, sort = { [key] = number|string }?,
+    //                data = { [filterKey] = value }?, search = 'extra words'?, tone = 'bad'|'gold'|'good'|'muted'?,
+    //                action? (click on the row), actions = { button props }? } }
+    //   search   { placeholder } | true      text search over every cell (+ row.search), accents ignored
+    //   filters  { { key, label?, value = '', options = { { value, label } } } }   '' = all; compares row.data[key]
+    //   sort     { key, dir = 'asc' | 'desc' }   initial order
+    //   action   default row action (emits { value })
+    //   selected value of the highlighted row · empty = text when nothing matches · height = max height (units)
+    //   count    'Showing %d of %d' (optional line under the table)
+    //   name     keeps search / filters / order in the form values across updates
+    C('table', {
+        render(p, c) {
+            const box = el('div', 'ui-table');
+            const cols = arr(p.columns);
+            const rows = arr(p.rows);
+            const hasActs = rows.some((r) => arr(r.actions).length);
+            const fold = (s) => String(s === undefined || s === null ? '' : s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+            const cellText = (v) => (v && typeof v === 'object' ? txt(v.text) : txt(v));
+
+            const saved = (p.name && c.value(p.name)) || {};
+            const st = {
+                q: saved.q || '',
+                sort: saved.sort || (p.sort ? { key: p.sort.key, dir: p.sort.dir || 'asc' } : null),
+                filters: { ...(saved.filters || {}) },
+            };
+            arr(p.filters).forEach((f) => { if (st.filters[f.key] === undefined) st.filters[f.key] = f.value !== undefined ? String(f.value) : ''; });
+            const save = () => { if (p.name) c.setValue(p.name, { q: st.q, sort: st.sort, filters: st.filters }); };
+
+            // toolbar: search + filters
+            if (p.search || arr(p.filters).length) {
+                const bar = el('div', 'ui-table-bar');
+                if (p.search) {
+                    const wrap = el('label', 'ui-table-search');
+                    wrap.appendChild(icon('search'));
+                    const input = el('input');
+                    input.type = 'text';
+                    input.spellcheck = false;
+                    input.placeholder = (typeof p.search === 'object' && p.search.placeholder) || '';
+                    input.value = st.q;
+                    input.addEventListener('input', () => { st.q = input.value; save(); c.debounce(`table:${p.id || p.name || ''}`, draw, 120); });
+                    wrap.appendChild(input);
+                    bar.appendChild(wrap);
+                }
+                arr(p.filters).forEach((f) => {
+                    // HTML dropdown, not a native <select> (broken popup in RedM)
+                    const dd = dropdownControl({ options: f.options, search: false }, () => st.filters[f.key], (v) => {
+                        st.filters[f.key] = String(v);
+                        save();
+                        draw();
+                    });
+                    const fw = el('div', 'ui-table-filter');
+                    if (f.label) fw.appendChild(el('span', '', f.label));
+                    fw.appendChild(dd.box);
+                    bar.appendChild(fw);
+                });
+                box.appendChild(bar);
+            }
+
+            const wrap = el('div', 'ui-table-wrap');
+            if (p.height) wrap.style.maxHeight = `calc(${num(p.height)} * var(--u))`;
+            const table = el('table');
+            const thead = el('thead');
+            const tbody = el('tbody');
+            table.append(thead, tbody);
+            wrap.appendChild(table);
+            box.appendChild(wrap);
+            const foot = el('div', 'ui-table-count');
+            if (p.count) box.appendChild(foot);
+
+            const head = () => {
+                thead.innerHTML = '';
+                const tr = el('tr');
+                cols.forEach((col) => {
+                    const th = el('th', `${col.align || ''}${col.sort ? ' sortable' : ''}`);
+                    if (col.width) th.style.width = col.width;
+                    th.appendChild(el('span', '', col.label || ''));
+                    if (col.sort) {
+                        const on = st.sort && st.sort.key === col.key;
+                        if (on) th.appendChild(icon(st.sort.dir === 'desc' ? 'down' : 'up'));
+                        th.classList.toggle('on', !!on);
+                        th.addEventListener('click', () => {
+                            st.sort = { key: col.key, dir: st.sort && st.sort.key === col.key && st.sort.dir === 'asc' ? 'desc' : 'asc' };
+                            save();
+                            head();
+                            draw();
+                        });
+                    }
+                    tr.appendChild(th);
+                });
+                if (hasActs) tr.appendChild(el('th', 'acts'));
+                thead.appendChild(tr);
+            };
+
+            const sortValue = (r, key) => {
+                if (r.sort && r.sort[key] !== undefined) return r.sort[key];
+                return cellText((r.cells || {})[key]);
+            };
+
+            const draw = () => {
+                tbody.innerHTML = '';
+                const q = fold(st.q).trim();
+                let list = rows.filter((r) => {
+                    for (const f of arr(p.filters)) {
+                        const want = st.filters[f.key];
+                        if (want !== '' && want !== undefined && String((r.data || {})[f.key]) !== want) return false;
+                    }
+                    if (!q) return true;
+                    const hay = fold(cols.map((col) => cellText((r.cells || {})[col.key])).join(' ') + ' ' + (r.search || ''));
+                    return q.split(/\s+/).every((w) => hay.includes(w));
+                });
+                if (st.sort) {
+                    const { key, dir } = st.sort;
+                    const m = dir === 'desc' ? -1 : 1;
+                    list = list.slice().sort((a, b) => {
+                        const x = sortValue(a, key);
+                        const y = sortValue(b, key);
+                        if (typeof x === 'number' && typeof y === 'number') return (x - y) * m;
+                        return String(x).localeCompare(String(y), undefined, { numeric: true }) * m;
+                    });
+                }
+                if (!list.length) {
+                    const tr = el('tr', 'empty');
+                    const td = el('td', '', p.empty || '');
+                    td.colSpan = cols.length + (hasActs ? 1 : 0);
+                    tr.appendChild(td);
+                    tbody.appendChild(tr);
+                }
+                list.forEach((r) => {
+                    const clickable = !!(r.action || p.action || r.go || r.confirm || r.prompt);
+                    const tr = el('tr', [r.tone || '', clickable ? 'click' : '', r.value !== undefined && r.value === p.selected ? 'on' : ''].filter(Boolean).join(' '));
+                    cols.forEach((col) => {
+                        const v = (r.cells || {})[col.key];
+                        const td = el('td', [col.align || '', v && typeof v === 'object' && v.tone ? v.tone : ''].filter(Boolean).join(' '));
+                        td.textContent = cellText(v);
+                        tr.appendChild(td);
+                    });
+                    if (hasActs) {
+                        const td = el('td', 'acts');
+                        arr(r.actions).forEach((a) => {
+                            const b = c.renderNode({ type: 'button', small: true, ...a, value: a.value !== undefined ? a.value : r.value }, c);
+                            if (b) td.appendChild(b);
+                        });
+                        tr.appendChild(td);
+                    }
+                    if (clickable) {
+                        tr.addEventListener('click', () => {
+                            if (box.classList.contains('busy')) return;
+                            p.selected = r.value;
+                            tbody.querySelectorAll('tr.on').forEach((n) => n.classList.remove('on'));
+                            tr.classList.add('on');
+                            c.fire({ ...r, action: r.action || p.action }, { id: p.id, value: r.value }, box);
+                        });
+                    }
+                    tbody.appendChild(tr);
+                });
+                if (p.count) foot.textContent = String(p.count).replace('%d', list.length).replace('%d', rows.length);
+            };
+
+            head();
+            draw();
+            if (p.id !== undefined) c.register(p.id, { el: box, props: p, update: draw });
+            return box;
+        },
+    });
 })();

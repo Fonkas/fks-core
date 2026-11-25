@@ -290,6 +290,17 @@ the handler receives (always plus `page`, section 7).
 | `composer` | `name?` (keeps the draft across updates), `placeholder`, `max`, `action`, `icon = 'send'`, `label?` — one-line reply box, Enter or the button sends and clears | `{ value = text }` |
 | `color` | `name?`, `label`, `value = '#rrggbb'`, `swatches?` (default palette), `action?` — swatches plus a custom colour | `{ value }` |
 
+### Documents and data (2.2.0)
+
+| `type` | Props | Emits |
+|---|---|---|
+| `dropdown` | same props as `select` + `placeholder?`, `search?` (search box; on by default with more than 8 options), `searchPlaceholder?`, `empty?`. Drawn in HTML: RedM's browser draws the popup of the native `<select>` as a broken texture, so prefer this one. Works in pages and `prompt` dialogs. | `{ name, value }` (with `action`) |
+| `signature` | `name` (signed name; empty = not signed yet), `label?` (caption under the line), `date?`, `pending?` (text while unsigned), `align = 'left' \| 'center' \| 'right'` — a name drawn as handwriting over a line (bills, loan agreements). Display only. | — |
+| `table` | `columns = { { key, label, align?, width?, sort? } }`, `rows = { { value, cells = { [key] = text \| { text, tone } }, sort?, data?, search?, tone?, action?, actions? } }`, `search = { placeholder } \| true`, `filters = { { key, label?, value, options } }` (compares `row.data[key]`, `''` = all), `sort = { key, dir }`, `action?` (row click), `selected?`, `empty?`, `height?`, `count?` (`'Showing %d of %d'`), `name?` (keeps search / filters / order across updates). Search, filters (HTML dropdowns) and sorting run in the NUI. | row click: `{ value }`; row buttons carry the row `value` |
+
+Horizontal menus: `layout = 'wide'` + view `tabs` (sections side by side) and `grid` / `class = 'box'` cards inside each
+page. fks-banking is built only from that.
+
 ### Form fields (pages and `prompt` dialogs)
 
 Every field with a `name` keeps its value in the view's **form values**: they survive tab
@@ -489,6 +500,10 @@ both scripts use today, referenced by name without the `i-` prefix (`icon = 'hor
 `panl panr rotl rotr reset` · `male female cross heart` ·
 `horse shoe wagon wheel saddle palette pelt` ·
 `heal transfer take quill hammer coin gold bag box` · `spur` (progress bar).
+A script can also use its own icon: pass the SVG markup instead of a name
+(`icon = LoadResourceFile(GetCurrentResourceName(), 'img/icons/deposit.svg')`). Draw it as a 24x24 line icon with
+no fills or colours of its own; the core removes scripts, event handlers, links and inline styles, and draws it with
+the same stroke and colours as the sprite icons.
 The ink filters (`#ink`, `#ink-soft`) and gradients (`#g-brass`, `#g-gold`, `#g-wax`) live
 in the same sprite.
 

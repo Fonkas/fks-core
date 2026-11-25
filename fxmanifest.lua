@@ -6,7 +6,7 @@ lua54 'yes'
 name 'fks-core'
 author 'FKS'
 description 'Shared base of the FKS scripts: VORP / RSG bridge, shared UI, notifications, progress bar, admin item panel'
-version '2.1.2'
+version '2.2.0'
 license 'GPL-3.0-or-later'
 
 shared_scripts {

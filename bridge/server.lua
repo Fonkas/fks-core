@@ -326,6 +326,66 @@ function Bridge.OpenStash(src, id, label, slots, weight, capacity)
     end
 end
 
+-- one value from the database, waiting for it (oxmysql callback -> promise)
+local function DbScalar(query, params)
+    local p = promise.new()
+    exports.oxmysql:scalar(query, params, function(res) p:resolve(res) end)
+    return Citizen.Await(p)
+end
+
+-- how full a storage is, in the same unit OpenStash limits it by (2.2.0):
+--   ox_inventory / rsg-inventory: used slots · vorp_inventory: total amount of items (+ weapons)
+-- Returns used, weight (grams, ox / rsg only; 0 on vorp). An unknown / never opened storage is empty (0, 0).
+-- Used before shrinking a storage, so the items always fit in the new size.
+function Bridge.StashUsage(id)
+    local INV = Bridge.Inventory()
+    local ok, used, weight = pcall(function()
+        if INV == 'ox_inventory' then
+            local inv = exports.ox_inventory:GetInventory(id, false)
+            if inv and inv.items then
+                local n = 0
+                for _ in pairs(inv.items) do n = n + 1 end
+                return n, tonumber(inv.weight) or 0
+            end
+            -- not loaded yet: read the saved stash
+            local data = DbScalar('SELECT data FROM ox_inventory WHERE name = ? LIMIT 1', { id })
+            local items = data and json.decode(data) or {}
+            local n, w = 0, 0
+            for _, it in pairs(items) do
+                n = n + 1
+                w = w + (tonumber(it.weight) or 0) * (tonumber(it.count) or 1)
+            end
+            return n, w
+        elseif INV == 'rsg-inventory' then
+            local items
+            local got, inv = pcall(function() return exports['rsg-inventory']:GetInventory(id) end)
+            if got and type(inv) == 'table' then items = inv.items or inv end
+            if not items then
+                local data = DbScalar('SELECT items FROM inventories WHERE identifier = ? LIMIT 1', { id })
+                items = data and json.decode(data) or {}
+            end
+            local n, w = 0, 0
+            for _, it in pairs(items) do
+                if type(it) == 'table' and it.name then
+                    n = n + 1
+                    w = w + (tonumber(it.weight) or 0) * (tonumber(it.amount or it.count) or 1)
+                end
+            end
+            return n, w
+        elseif INV == 'vorp_inventory' then
+            local items = DbScalar('SELECT COALESCE(SUM(amount), 0) FROM character_inventories WHERE inventory_type = ?', { id })
+            local guns = DbScalar('SELECT COUNT(*) FROM loadout WHERE curr_inv = ?', { id })
+            return (tonumber(items) or 0) + (tonumber(guns) or 0), 0
+        end
+        return 0, 0
+    end)
+    if not ok then
+        print(('^3[%s] Bridge.StashUsage(%s) failed: %s^0'):format(Bridge.resource, tostring(id), tostring(used)))
+        return 0, 0
+    end
+    return tonumber(used) or 0, tonumber(weight) or 0
+end
+
 -- deletes a storage and its contents
 function Bridge.DeleteStash(id)
     local INV = Bridge.Inventory()

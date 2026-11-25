@@ -26,7 +26,37 @@ const FKS = (() => {
         if (text !== undefined && text !== null) e.textContent = text;
         return e;
     };
+    // A script's own icon, sent as SVG markup (`icon = '<svg ...>...</svg>'`): parsed once, cleaned (no scripts,
+    // event handlers, links or inline styles) and cloned. It takes the `.ico` style like the sprite icons.
+    const svgIcons = new Map();
+    const markupIcon = (markup) => {
+        if (svgIcons.has(markup)) return svgIcons.get(markup);
+        let tpl = null;
+        try {
+            const doc = new DOMParser().parseFromString(markup, 'image/svg+xml');
+            const root = doc.documentElement;
+            if (root && root.localName === 'svg' && !doc.getElementsByTagName('parsererror').length) {
+                root.querySelectorAll('script, foreignObject, iframe, image, use, a, style').forEach((n) => n.remove());
+                [root, ...root.querySelectorAll('*')].forEach((n) => [...n.attributes].forEach((a) => {
+                    if (/^on|href$|^style$/i.test(a.name)) n.removeAttribute(a.name);
+                }));
+                ['width', 'height', 'class', 'id'].forEach((a) => root.removeAttribute(a));
+                tpl = document.importNode(root, true);
+            }
+        } catch (e) { tpl = null; }
+        svgIcons.set(markup, tpl);
+        return tpl;
+    };
     const icon = (name, cls = 'ico') => {
+        if (typeof name === 'string' && name.trimStart().startsWith('<svg')) {
+            const tpl = markupIcon(name.trim());
+            if (tpl) {
+                const s = tpl.cloneNode(true);
+                if (cls) s.setAttribute('class', cls);
+                return s;
+            }
+            name = 'box';                                   // broken markup: a neutral icon instead of nothing
+        }
         const s = document.createElementNS(NS, 'svg');
         if (cls) s.setAttribute('class', cls);
         const u = document.createElementNS(NS, 'use');
